@@ -1,0 +1,1 @@
+package com.minimarket.venta.dto; import jakarta.validation.constraints.*; import java.math.BigDecimal; public record VentaPagoRequest(@NotNull Long metodoPagoId,@NotNull @DecimalMin("0.01") BigDecimal monto,@Size(max=100) String referencia) {}

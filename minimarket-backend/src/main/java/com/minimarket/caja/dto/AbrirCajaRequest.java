@@ -1,0 +1,1 @@
+package com.minimarket.caja.dto; import jakarta.validation.constraints.*; import java.math.BigDecimal; public record AbrirCajaRequest(@NotNull Long cajaId,@NotNull @DecimalMin("0.00") BigDecimal montoApertura) {}

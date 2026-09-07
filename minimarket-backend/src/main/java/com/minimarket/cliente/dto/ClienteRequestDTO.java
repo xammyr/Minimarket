@@ -1,0 +1,1 @@
+package com.minimarket.cliente.dto; import jakarta.validation.constraints.*; public record ClienteRequestDTO(@NotNull Long tipoDocumentoId,@NotBlank @Size(max=20) String numeroDocumento,@NotBlank @Size(max=150) String nombreRazonSocial,@Size(max=150) String nombreComercial,@Size(max=200) String direccion,@Size(max=20) String telefono,@Email @Size(max=120) String email) {}

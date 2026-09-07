@@ -1,0 +1,1 @@
+package com.minimarket.producto.dto; import jakarta.validation.constraints.*; public record UnidadMedidaRequestDTO(@NotBlank @Size(max=30) String nombre,@NotBlank @Size(max=10) String abreviatura) {}

@@ -1,0 +1,1 @@
+package com.minimarket.inventario.dto; import java.math.BigDecimal; import java.time.OffsetDateTime; public record InventarioResponseDTO(Long movimientoId,Long productoId,String producto,Long loteId,String tipo,BigDecimal cantidad,BigDecimal stockAnterior,BigDecimal stockResultante,String motivo,Long usuarioId,OffsetDateTime createdAt) {}

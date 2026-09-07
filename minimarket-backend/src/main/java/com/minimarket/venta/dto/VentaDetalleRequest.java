@@ -1,0 +1,1 @@
+package com.minimarket.venta.dto; import jakarta.validation.constraints.*; import java.math.BigDecimal; public record VentaDetalleRequest(@NotNull Long productoId,@NotNull @DecimalMin("0.001") BigDecimal cantidad,@NotNull @DecimalMin("0.00") BigDecimal descuento) {}

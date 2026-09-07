@@ -1,0 +1,1 @@
+package com.minimarket.inventario.service; import com.minimarket.inventario.dto.*; import org.springframework.data.domain.*; public interface InventarioService{InventarioResponseDTO registrar(MovimientoInventarioRequest r);Page<InventarioResponseDTO> kardex(Long productoId,Pageable p);}

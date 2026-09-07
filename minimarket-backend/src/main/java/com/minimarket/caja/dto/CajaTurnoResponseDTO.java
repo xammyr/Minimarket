@@ -1,0 +1,1 @@
+package com.minimarket.caja.dto; import java.math.BigDecimal; import java.time.OffsetDateTime; public record CajaTurnoResponseDTO(Long id,Long cajaId,String cajaNombre,Long usuarioId,BigDecimal montoApertura,BigDecimal esperado,BigDecimal real,BigDecimal diferencia,String estado,OffsetDateTime apertura,OffsetDateTime cierre) {}

@@ -1,0 +1,1 @@
+package com.minimarket.cliente.dto; import java.time.OffsetDateTime; public record ClienteResponseDTO(Long id,Long tipoDocumentoId,String tipoDocumentoCodigo,String numeroDocumento,String nombreRazonSocial,String nombreComercial,String direccion,String telefono,String email,Boolean activo,OffsetDateTime createdAt) {}

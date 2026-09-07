@@ -1,0 +1,6 @@
+package com.minimarket.venta.controller; import org.springframework.security.access.prepost.PreAuthorize;
+import com.minimarket.common.ApiResponse; import com.minimarket.venta.dto.*; import com.minimarket.venta.service.VentaService; import jakarta.validation.Valid; import lombok.RequiredArgsConstructor; import org.springframework.data.domain.*; import org.springframework.http.*; import org.springframework.web.bind.annotation.*; @RestController @RequestMapping("/api/ventas") @RequiredArgsConstructor public class VentaController{private final VentaService s;@PostMapping@ResponseStatus(HttpStatus.CREATED)@PreAuthorize("hasAuthority('VENTA_CREAR')")
+    public ApiResponse<VentaResponseDTO> crear(@Valid@RequestBody CrearVentaRequest r){return ApiResponse.ok(s.crear(r),"Venta registrada");}@GetMapping @PreAuthorize("hasAuthority('PRODUCTO_VER')")
+    public ApiResponse<Page<VentaResponseDTO>> listar(Pageable p){return ApiResponse.ok(s.listar(p));}@GetMapping("/{id}")@PreAuthorize("hasAuthority('PRODUCTO_VER')")
+    public ApiResponse<VentaResponseDTO> one(@PathVariable Long id){return ApiResponse.ok(s.obtener(id));}@PostMapping("/{id}/anular")@PreAuthorize("hasAuthority('VENTA_ANULAR')")
+    public ApiResponse<Void> anular(@PathVariable Long id,@RequestParam String motivo){s.anular(id,motivo);return ApiResponse.ok(null,"Venta anulada");}}

@@ -1,0 +1,25 @@
+# Archivos de IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Compilados de Maven (Backend)
+target/
+*.jar
+*.war
+
+# Logs
+*.log
+
+# Datos de la base de datos (Docker)
+# (Asegúrate de poner el nombre exacto de la carpeta donde Docker guarda tus datos locales)
+minimarket_db_data/
+pgdata/
+
+# Archivos de entorno y secretos
+.env
+
+# Preparación para el Frontend (Angular)
+node_modules/
+dist/
+.angular/

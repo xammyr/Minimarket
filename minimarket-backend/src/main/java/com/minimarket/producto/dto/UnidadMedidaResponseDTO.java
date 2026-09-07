@@ -1,0 +1,1 @@
+package com.minimarket.producto.dto; import java.time.OffsetDateTime; public record UnidadMedidaResponseDTO(Long id,String nombre,String abreviatura,OffsetDateTime createdAt) {}

@@ -1,0 +1,1 @@
+package com.minimarket.producto.dto; import java.time.OffsetDateTime; public record MarcaResponseDTO(Long id,String nombre,Boolean activo,OffsetDateTime createdAt) {}

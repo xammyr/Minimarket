@@ -1,0 +1,26 @@
+
+# Levanta un PostgreSQL local listo para pruebas.
+# Uso: docker compose up -d
+# (Opcional: si ya tienes PostgreSQL instalado en tu máquina, no lo necesitas.)
+
+services:
+  minimarket-db:
+    image: postgres:16
+    container_name: minimarket-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: minimarket
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - minimarket_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d minimarket"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  minimarket_db_data:

@@ -1,0 +1,1 @@
+package com.minimarket.producto.service; import com.minimarket.producto.dto.*; import org.springframework.data.domain.*; public interface UnidadMedidaService{Page<UnidadMedidaResponseDTO> listar(Pageable p);UnidadMedidaResponseDTO obtener(Long id);UnidadMedidaResponseDTO crear(UnidadMedidaRequestDTO r);UnidadMedidaResponseDTO actualizar(Long id,UnidadMedidaRequestDTO r);}

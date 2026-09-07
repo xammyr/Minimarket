@@ -1,0 +1,1 @@
+package com.minimarket.venta.dto; import java.math.BigDecimal; public record VentaPagoResponseDTO(Long id,Long metodoPagoId,String metodoPago,BigDecimal monto,String referencia) {}

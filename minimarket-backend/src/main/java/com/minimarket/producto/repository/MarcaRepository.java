@@ -1,0 +1,1 @@
+package com.minimarket.producto.repository; import com.minimarket.producto.entity.Marca; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface MarcaRepository extends JpaRepository<Marca,Long>{Optional<Marca> findByNombreIgnoreCase(String nombre);}

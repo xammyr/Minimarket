@@ -1,0 +1,1 @@
+package com.minimarket.venta.service; import com.minimarket.venta.dto.*; import org.springframework.data.domain.*; public interface VentaService{VentaResponseDTO crear(CrearVentaRequest r);VentaResponseDTO obtener(Long id);Page<VentaResponseDTO> listar(Pageable p);void anular(Long id,String motivo);}

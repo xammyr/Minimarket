@@ -1,0 +1,1 @@
+package com.minimarket.venta.dto; import jakarta.validation.Valid; import jakarta.validation.constraints.*; import java.util.List; public record CrearVentaRequest(Long clienteId,@NotNull Long cajaTurnoId,@NotEmpty List<@Valid VentaDetalleRequest> detalles,@NotEmpty List<@Valid VentaPagoRequest> pagos) {}

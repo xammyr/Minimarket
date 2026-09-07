@@ -1,0 +1,1 @@
+package com.minimarket.producto.service; import com.minimarket.producto.dto.*; import org.springframework.data.domain.*; public interface MarcaService{Page<MarcaResponseDTO> listar(Pageable p);MarcaResponseDTO obtener(Long id);MarcaResponseDTO crear(MarcaRequestDTO r);MarcaResponseDTO actualizar(Long id,MarcaRequestDTO r);void desactivar(Long id);}

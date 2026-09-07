@@ -1,0 +1,1 @@
+package com.minimarket.venta.dto; import java.math.BigDecimal; public record VentaDetalleResponseDTO(Long id,Long productoId,String producto,BigDecimal cantidad,BigDecimal precioUnitario,BigDecimal descuento,BigDecimal igv,BigDecimal subtotal,BigDecimal total) {}

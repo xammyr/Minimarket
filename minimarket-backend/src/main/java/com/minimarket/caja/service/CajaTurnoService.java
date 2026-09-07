@@ -1,0 +1,1 @@
+package com.minimarket.caja.service; import com.minimarket.caja.dto.*; public interface CajaTurnoService{CajaTurnoResponseDTO abrir(AbrirCajaRequest r);CajaTurnoResponseDTO actual(Long cajaId);CajaTurnoResponseDTO cerrar(Long id,CerrarCajaRequest r);}

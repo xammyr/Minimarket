@@ -1,0 +1,1 @@
+package com.minimarket.producto.dto; import jakarta.validation.constraints.*; public record MarcaRequestDTO(@NotBlank @Size(max=80) String nombre) {}
