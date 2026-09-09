@@ -1,0 +1,62 @@
+<div class="cajero-layout">
+  
+  <!-- FONDO OSCURO (Solo aparece en móvil cuando el menú se abre) -->
+  @if (sidebarAbierto()) {
+    <div class="sidebar-backdrop" (click)="cerrarSidebar()"></div>
+  }
+
+  <!-- BARRA LATERAL (SIDEBAR) -->
+  <aside class="sidebar" [class.abierto]="sidebarAbierto()">
+    <div class="cajero-profile">
+      <div class="avatar">👨‍💼</div>
+      <div class="info">
+        <h3>Caja Principal</h3>
+        <span class="status online">● Operativa</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-menu">
+      <!-- Los routerLink dirigen a la ruta exacta configurada en app.routes.ts -->
+      <a routerLink="/caja" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="menu-item">
+        <span class="icon">🛒</span> Nueva Venta (POS)
+      </a>
+      
+      <a routerLink="/caja/facturas" routerLinkActive="active" class="menu-item">
+        <span class="icon">🧾</span> Facturas / Boletas
+      </a>
+      
+      <a routerLink="/caja/compras" routerLinkActive="active" class="menu-item">
+        <span class="icon">📦</span> Registro de Compras
+      </a>
+      
+      <a routerLink="/caja/corte" routerLinkActive="active" class="menu-item">
+        <span class="icon">💰</span> Corte de Caja
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn">
+        <span class="icon">🚪</span> Salir
+      </button>
+    </div>
+  </aside>
+
+  <!-- ÁREA PRINCIPAL -->
+  <main class="main-content">
+    <header class="top-header">
+      <!-- NUEVO BOTÓN HAMBURGUESA (Oculto en PC, visible en móvil) -->
+      <button class="btn-menu" (click)="toggleSidebar()">☰</button>
+      
+      <h2>Sistema de Caja</h2>
+      <div class="time-display">
+        Turno Mañana - {{ fechaActual }}
+      </div>
+    </header>
+
+    <div class="content-area">
+      <!-- Agregamos (activate)="cerrarSidebar()" para que el menú se oculte al hacer clic en un enlace -->
+      <router-outlet (activate)="cerrarSidebar()"></router-outlet>
+    </div>
+  </main>
+
+</div>

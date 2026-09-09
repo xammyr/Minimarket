@@ -1,0 +1,55 @@
+<div class="pos-container">
+  
+  <!-- SECCIÓN IZQUIERDA: Catálogo en Cuadrícula -->
+  <section class="catalog-section">
+    <h2>📦 Catálogo de Productos</h2>
+    
+    <div class="product-grid">
+      @for (producto of productos(); track producto.id) {
+        <!-- Al hacer clic, enviamos el producto al carrito -->
+        <div class="product-card" (click)="agregarAlCarrito(producto)">
+          <div class="card-header">
+            <span class="stock-badge">Stock: {{ producto.stockActual }}</span>
+          </div>
+          <h3 class="product-name">{{ producto.nombre }}</h3>
+          <p class="product-code">{{ producto.codigoInterno }}</p>
+          <p class="product-price">S/ {{ producto.precioVenta }}</p>
+        </div>
+      } @empty {
+        <p class="loading-text">Cargando catálogo...</p>
+      }
+    </div>
+  </section>
+
+ <!-- SECCIÓN DERECHA: Ticket de Venta / Carrito -->
+  <aside class="cart-section">
+    <h2>🛒 Ticket de Venta</h2>
+    
+    <div class="cart-items">
+      @for (item of carrito(); track item.producto.id) {
+        <div class="cart-item">
+          <div class="item-info">
+            <span class="item-name">{{ item.producto.nombre }}</span>
+            <span class="item-qty">Cantidad: {{ item.cantidad }}</span>
+          </div>
+          <strong class="item-price">S/ {{ item.subtotal.toFixed(2) }}</strong>
+        </div>
+      } @empty {
+        <p class="empty-cart">Aún no hay productos en el ticket</p>
+      }
+    </div>
+    
+    <!-- Mostrar el total solo si hay productos -->
+    @if (carrito().length > 0) {
+      <div class="cart-total">
+        <span>Total a pagar:</span>
+        <strong>S/ {{ total().toFixed(2) }}</strong>
+      </div>
+    }
+    
+    <button class="btn-checkout" [disabled]="carrito().length === 0" (click)="cobrar()">
+      Cobrar ({{ totalItems() }} items)
+    </button>
+  </aside>
+
+</div>

@@ -1,0 +1,49 @@
+<div class="page-container pantalla-normal">
+  <div class="page-header">
+    <div>
+      <h2>💰 Corte de Caja</h2>
+      <p>Apertura, cierre y cuadre de la caja principal</p>
+    </div>
+  </div>
+
+  <div class="card" style="padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+    
+    <div *ngIf="!turnoActual" class="apertura-caja">
+      <h3>Abrir Turno de Caja</h3>
+      <p>Ingrese el monto inicial (sencillo) con el que inicia el turno.</p>
+      
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Monto Inicial (S/)</label>
+        <input type="number" class="form-control" [(ngModel)]="montoInicial" min="0" step="0.50" style="padding: 10px; width: 100%; max-width: 300px; border: 1px solid #ccc; border-radius: 5px;">
+      </div>
+      
+      <button class="btn-primary" (click)="abrirCaja()" style="background: #2980b9; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Abrir Caja</button>
+    </div>
+
+    <div *ngIf="turnoActual" class="cierre-caja">
+      <h3>Turno de Caja Activo (ID: {{turnoActual.id}})</h3>
+      <p><strong>Fecha de Apertura:</strong> {{ turnoActual.apertura | date:'dd/MM/yyyy HH:mm' }}</p>
+      <p><strong>Monto Inicial:</strong> S/ {{ turnoActual.montoApertura?.toFixed(2) }}</p>
+      <h3 style="color: #27ae60;">Monto Esperado (Incluyendo Ventas): S/ {{ turnoActual.esperado?.toFixed(2) }}</h3>
+      
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+      
+      <h3>Cerrar Turno</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px;">
+        <div>
+          <label style="display: block; font-weight: bold; margin-bottom: 5px;">Monto Real Físico (S/)</label>
+          <input type="number" class="form-control" [(ngModel)]="montoDeclarado" min="0" step="0.50" style="padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+        <div>
+          <label style="display: block; font-weight: bold; margin-bottom: 5px;">Observaciones (Opcional)</label>
+          <input type="text" class="form-control" [(ngModel)]="observaciones" placeholder="Ej. Faltante por dar vuelto..." style="padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+      </div>
+      
+      <div style="margin-top: 20px;">
+        <button class="btn-danger" (click)="cerrarCaja()" style="background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Cerrar Caja Definitivamente</button>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,163 @@
+<div class="page-container">
+  
+  <div class="page-header">
+    <div>
+      <h2>📦 Registro de Compras</h2>
+      <p>Control de ingreso de mercadería y pagos a proveedores</p>
+    </div>
+    
+    <div class="actions">
+      <div class="search-bar">
+        <span class="icon">🔍</span>
+        <input type="text" placeholder="Buscar proveedor o comprobante..." (input)="actualizarBusqueda($event)">
+      </div>
+      <button class="btn-primary" (click)="abrirNuevaCompra()">➕ Nueva Compra</button>
+    </div>
+  </div>
+
+  <div class="table-responsive-wrapper">
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Comprobante</th>
+            <th>Fecha de Ingreso</th>
+            <th>Proveedor</th>
+            <th>Estado</th>
+            <th>Total Pagado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (compra of comprasFiltradas(); track compra.id) {
+            <tr>
+              <td class="fw-bold">{{ compra.numeroComprobante }}</td>
+              <td>{{ compra.fechaCompra | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ compra.proveedorNombre }}</td>
+              <td>
+                <span class="badge" 
+                      [class.bg-info]="compra.estado === 'COMPLETADA'" 
+                      [class.bg-warning]="compra.estado === 'PENDIENTE'"
+                      [class.bg-danger]="compra.estado === 'ANULADA'">
+                  {{ compra.estado }}
+                </span>
+              </td>
+              <td class="fw-bold text-primary">S/ {{ compra.total.toFixed(2) }}</td>
+              <td>
+                <button class="btn-icon" title="Ver detalle" (click)="abrirDetalle(compra)">👁️</button>
+                @if (compra.estado !== 'ANULADA') {
+                   <button class="btn-icon" title="Anular" (click)="anularCompra(compra.id)">❌</button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-state">No se encontraron compras registradas.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL DETALLE COMPRA -->
+  <div class="modal-overlay" *ngIf="mostrarModalDetalle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Detalle de Compra: {{ compraSeleccionada?.numeroComprobante }}</h3>
+        <button class="btn-close" (click)="cerrarDetalle()">✖</button>
+      </div>
+      <div class="modal-body" *ngIf="compraSeleccionada">
+        <p><strong>Proveedor:</strong> {{ compraSeleccionada.proveedorNombre }}</p>
+        <p><strong>Fecha:</strong> {{ compraSeleccionada.fechaCompra | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p><strong>Estado:</strong> {{ compraSeleccionada.estado }}</p>
+        <p><strong>Usuario:</strong> {{ compraSeleccionada.usuarioNombre }}</p>
+        <hr>
+        <h4>Productos</h4>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio Unit.</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let det of compraSeleccionada.detalles">
+              <td>{{ det.productoNombre }}</td>
+              <td>{{ det.cantidad }}</td>
+              <td>S/ {{ det.precioUnitario.toFixed(2) }}</td>
+              <td>S/ {{ det.subtotal.toFixed(2) }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 class="text-right mt-3">Total: S/ {{ compraSeleccionada.total.toFixed(2) }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NUEVA COMPRA -->
+  <div class="modal-overlay" *ngIf="mostrarModalNueva">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h3>➕ Registrar Nueva Compra</h3>
+        <button class="btn-close" (click)="cerrarNuevaCompra()">✖</button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="form-group">
+          <label>N° Comprobante</label>
+          <input type="text" class="form-control" [(ngModel)]="nuevaCompraForm.comprobante" placeholder="Ej. F001-00085">
+        </div>
+        
+        <div class="form-group">
+          <label>Proveedor</label>
+          <select class="form-control" [(ngModel)]="nuevaCompraForm.proveedorId">
+            <option [ngValue]="null">-- Seleccione --</option>
+            <option *ngFor="let p of listaProveedores()" [ngValue]="p.id">{{ p.razonSocial || p.nombreComercial || p.nombre }}</option>
+          </select>
+        </div>
+        
+        <hr>
+        <h4>Agregar Productos a la Compra</h4>
+        <div class="add-product-row">
+          <select class="form-control" [(ngModel)]="productoTemporalId">
+            <option [ngValue]="null">-- Producto --</option>
+            <option *ngFor="let p of listaProductos()" [ngValue]="p.id">{{ p.nombre }}</option>
+          </select>
+          <input type="number" class="form-control" placeholder="Cant." [(ngModel)]="cantidadTemporal" min="1">
+          <input type="number" class="form-control" placeholder="Costo Unit." [(ngModel)]="precioTemporal" min="0" step="0.01">
+          <button class="btn-secondary" (click)="agregarProducto()">Agregar</button>
+        </div>
+
+        <table class="data-table mt-3" *ngIf="nuevaCompraForm.detalles.length > 0">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Costo Unit.</th>
+              <th>Subtotal</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let det of nuevaCompraForm.detalles; let i = index">
+              <td>{{ getNombreProducto(det.productoId) }}</td>
+              <td>{{ det.cantidad }}</td>
+              <td>S/ {{ det.precioUnitario }}</td>
+              <td>S/ {{ (det.cantidad * det.precioUnitario).toFixed(2) }}</td>
+              <td><button class="btn-icon text-danger" (click)="eliminarProducto(i)">🗑️</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 class="text-right mt-3 text-primary" *ngIf="nuevaCompraForm.detalles.length > 0">Total: S/ {{ getTotalNuevaCompra().toFixed(2) }}</h3>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="cerrarNuevaCompra()">Cancelar</button>
+        <button class="btn-primary" (click)="guardarCompra()">Guardar Compra</button>
+      </div>
+    </div>
+  </div>
+</div>

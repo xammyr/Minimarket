@@ -91,6 +91,18 @@
             <version>${springdoc.version}</version>
         </dependency>
 
+        <!-- Generación de archivos Excel (Apache POI) -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.3</version>
+        </dependency>
+
         <!-- Reduce boilerplate en entidades/DTOs -->
         <dependency>
             <groupId>org.projectlombok</groupId>

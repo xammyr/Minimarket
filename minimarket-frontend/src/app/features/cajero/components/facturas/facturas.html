@@ -1,0 +1,133 @@
+<!-- PANTALLA PRINCIPAL -->
+<div class="page-container pantalla-normal">
+  <div class="page-header">
+    <div>
+      <h2>🧾 Facturas y Boletas</h2>
+      <p>Historial de ventas y comprobantes emitidos en caja</p>
+    </div>
+    
+    <div class="actions">
+      <div class="search-bar">
+        <span class="icon">🔍</span>
+        <input type="text" placeholder="Buscar N° comprobante o estado..." (input)="actualizarBusqueda($event)">
+      </div>
+      <button class="btn-exportar" (click)="descargarExcel()">
+        📥 Exportar {{ seleccionados().length > 0 ? seleccionados().length + ' seleccionados' : 'Excel' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- APLICAMOS UN CONTENEDOR PARA EL SCROLL EN MÓVILES -->
+  <div class="table-responsive-wrapper">
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 40px; text-align: center;">
+              <input type="checkbox" [checked]="todasSeleccionadas()" (change)="toggleTodo($event)">
+            </th>
+            <th>Comprobante</th>
+            <th>Fecha y Hora</th>
+            <th>Cliente ID</th>
+            <th>Estado</th>
+            <th>Total</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (factura of facturasFiltradas(); track factura.id) {
+            <tr [class.fila-seleccionada]="seleccionados().includes(factura.id)">
+              <td style="text-align: center;">
+                <input type="checkbox" [checked]="seleccionados().includes(factura.id)" (change)="toggleSeleccion(factura.id)">
+              </td>
+              <td class="fw-bold">{{ factura.numeroVenta }}</td>
+              <td>{{ factura.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ factura.clienteId || 'Público General' }}</td>
+              <td>
+                <span class="badge" [class.bg-success]="factura.estado === 'COMPLETADA'" [class.bg-danger]="factura.estado === 'ANULADA'">
+                  {{ factura.estado }}
+                </span>
+              </td>
+              <td class="fw-bold text-success">S/ {{ factura.total.toFixed(2) }}</td>
+              <td>
+                <button class="btn-icon" title="Ver detalle" (click)="verDetalle(factura)">👁️</button>
+                <button class="btn-icon" title="Imprimir PDF" (click)="imprimirFactura(factura)">🖨️</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="empty-state">No se encontraron comprobantes.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL DE PREVISUALIZACIÓN ================= -->
+@if (mostrarModal && facturaSeleccionada) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <h3>Detalle de Comprobante</h3>
+        <button class="btn-close" (click)="cerrarModal()">✖</button>
+      </div>
+      
+      <div class="modal-ticket-preview">
+        <div class="ticket-header">
+          <h2>MINIMARKET</h2>
+          <p>RUC: 20123456789</p>
+          <p>Ticket Electrónico</p>
+        </div>
+        
+        <div class="ticket-info">
+          <p><strong>N°:</strong> {{ facturaSeleccionada.numeroVenta }}</p>
+          <p><strong>Fecha:</strong> {{ facturaSeleccionada.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</p>
+          <p><strong>Cliente:</strong> {{ facturaSeleccionada.clienteId || 'Público General' }}</p>
+          <p><strong>Estado:</strong> 
+            <span [class.text-success]="facturaSeleccionada.estado === 'COMPLETADA'" [class.text-danger]="facturaSeleccionada.estado === 'ANULADA'">
+              {{ facturaSeleccionada.estado | uppercase }}
+            </span>
+          </p>
+        </div>
+
+        <div class="ticket-total">
+          <h3>TOTAL</h3>
+          <h2>S/ {{ facturaSeleccionada.total.toFixed(2) }}</h2>
+        </div>
+        
+        <div class="ticket-barcode">
+          ||| ||||| || |||||| |||| ||
+          <p>{{ facturaSeleccionada.numeroVenta }}</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancelar" (click)="cerrarModal()">Cerrar</button>
+        <button class="btn-imprimir" (click)="imprimirFactura(facturaSeleccionada)">🖨️ Imprimir Ticket</button>
+      </div>
+      
+    </div>
+  </div>
+}
+
+<!-- ================= ZONA REAL DE IMPRESIÓN ================= -->
+<div class="zona-impresion">
+  @if (facturaSeleccionada) {
+    <div class="formato-papel-ticket">
+      <h2 style="text-align: center; margin: 0; font-size: 18px;">MINIMARKET</h2>
+      <p style="text-align: center; margin: 0; font-size: 12px;">RUC: 20123456789</p>
+      <p style="text-align: center; margin: 5px 0 15px 0; font-size: 12px;">Ticket de Venta</p>
+      
+      <p style="margin: 2px 0; border-top: 1px dashed black; padding-top: 5px;"><strong>N°:</strong> {{ facturaSeleccionada.numeroVenta }}</p>
+      <p style="margin: 2px 0;"><strong>Fecha:</strong> {{ facturaSeleccionada.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</p>
+      <p style="margin: 2px 0; border-bottom: 1px dashed black; padding-bottom: 5px;"><strong>Cliente:</strong> {{ facturaSeleccionada.clienteId || 'Público General' }}</p>
+      
+      <h3 style="text-align: center; margin: 15px 0; font-size: 16px;">TOTAL: S/ {{ facturaSeleccionada.total.toFixed(2) }}</h3>
+      
+      <p style="text-align: center; margin-top: 20px; font-size: 11px; border-top: 1px dashed black; padding-top: 10px;">¡Gracias por su compra!</p>
+    </div>
+  }
+</div>

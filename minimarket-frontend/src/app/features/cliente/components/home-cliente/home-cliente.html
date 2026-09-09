@@ -1,0 +1,157 @@
+<div class="store-container">
+  
+  <!-- BARRA DE NAVEGACIÓN -->
+  <nav class="navbar">
+    <div class="logo">
+      <span class="icon">🛍️</span>
+      <h1>MiniMarket</h1>
+    </div>
+    <div class="nav-actions">
+      <button class="cart-btn" (click)="toggleCart()">
+        🛒 Mi Carrito 
+        @if (totalItems() > 0) {
+          <span class="badge">{{ totalItems() }}</span>
+        }
+      </button>
+      <button class="login-btn">Iniciar Sesión</button>
+    </div>
+  </nav>
+
+  <!-- BANNER DE BIENVENIDA -->
+  <header class="hero-section">
+    <h2>Encuentra todo lo que necesitas</h2>
+    <p>Calidad, frescura y los mejores precios a un clic de distancia.</p>
+  </header>
+
+  <!-- BARRA DE HERRAMIENTAS (Filtros, Búsqueda, Orden) -->
+  <div class="store-toolbar">
+    <!-- 1. Búsqueda -->
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input 
+        type="text" 
+        placeholder="Buscar productos por nombre o código..." 
+        (input)="actualizarBusqueda($event)">
+    </div>
+
+    <!-- 2. Categorías -->
+    <div class="category-filters">
+      @for (cat of categorias; track cat) {
+        <button 
+          class="filter-pill" 
+          [class.active]="categoriaSeleccionada() === cat"
+          (click)="seleccionarCategoria(cat)">
+          {{ cat }}
+        </button>
+      }
+    </div>
+
+    <!-- 3. Ordenamiento -->
+    <div class="sort-box">
+      <select (change)="actualizarOrden($event)">
+        <option value="defecto">Recomendados</option>
+        <option value="precio-asc">Precio: Menor a Mayor</option>
+        <option value="precio-desc">Precio: Mayor a Menor</option>
+        <option value="az">Nombre: A - Z</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- VITRINA DE PRODUCTOS -->
+  <main class="products-showcase">
+    <div class="store-grid">
+      @for (producto of productosFiltrados(); track producto.id) {
+        <article class="store-card">
+          <div class="image-placeholder">
+            <span class="stock-badge">Stock: {{ producto.stockActual }}</span>
+            <div class="gradient-bg"></div>
+            <span class="box-icon">📦</span>
+          </div>
+          <div class="card-content">
+            <span class="category">{{ producto.categoriaNombre || 'General' }}</span>
+            <h4 class="product-title">{{ producto.nombre }}</h4>
+            <div class="price-row">
+              <span class="price">S/ {{ producto.precioVenta.toFixed(2) }}</span>
+              <span class="unit">{{ producto.unidadMedidaAbreviatura }}</span>
+            </div>
+            <button class="add-to-cart-btn" (click)="agregarAlCarrito(producto)">
+              Añadir al carrito
+            </button>
+          </div>
+        </article>
+      } @empty {
+        <div class="empty-results">
+          <h3>No encontramos lo que buscas 😕</h3>
+          <p>Intenta con otra palabra clave o cambia de categoría.</p>
+        </div>
+      }
+    </div>
+
+    <!-- BOTÓN DE CARGAR MÁS -->
+    @if (hayMasPaginas() && productosFiltrados().length > 0) {
+      <div class="load-more-container">
+        <button class="load-more-btn" (click)="cargarMas()">
+          Cargar más productos ⬇️
+        </button>
+      </div>
+    }
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="store-footer">
+    <!-- ... (El mismo footer que ya tenías) ... -->
+    <div class="footer-content">
+      <div class="brand">
+        <h3>🛍️ MiniMarket</h3>
+        <p>Tu tienda de confianza.</p>
+      </div>
+      <div class="links">
+        <a href="#">Términos y Condiciones</a>
+        <a href="#">Política de Privacidad</a>
+        <a href="#">Soporte</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 MiniMarket. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+</div>
+
+<!-- PANEL LATERAL (SIDE DRAWER) DEL CARRITO -->
+<!-- ... (El mismo panel lateral que ya tenías, queda exactamente igual) ... -->
+<div class="cart-drawer-overlay" [class.open]="isCartOpen()" (click)="toggleCart()"></div>
+<aside class="cart-drawer" [class.open]="isCartOpen()">
+  <div class="drawer-header">
+    <h2>Tu Pedido</h2>
+    <button class="close-btn" (click)="toggleCart()">✕</button>
+  </div>
+  <div class="drawer-body">
+    @for (item of carrito(); track item.producto.id) {
+      <div class="cart-item-row">
+        <div class="item-details">
+          <h4>{{ item.producto.nombre }}</h4>
+          <span class="item-unit">{{ item.producto.unidadMedidaAbreviatura }}</span>
+        </div>
+        <div class="item-actions">
+          <div class="qty-control"><span class="qty">x{{ item.cantidad }}</span></div>
+          <div class="item-price-block">
+             <span class="subtotal">S/ {{ item.subtotal.toFixed(2) }}</span>
+             <button class="remove-btn" (click)="eliminarDelCarrito(item.producto.id)">🗑️</button>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <span class="empty-icon">🛒</span><p>Tu carrito está vacío</p>
+        <button class="continue-btn" (click)="toggleCart()">Seguir comprando</button>
+      </div>
+    }
+  </div>
+  @if (carrito().length > 0) {
+    <div class="drawer-footer">
+      <div class="total-row"><span>Total a pagar:</span><strong>S/ {{ totalPagar().toFixed(2) }}</strong></div>
+      <button class="checkout-btn" (click)="procederPago()">Proceder al Pago</button>
+    </div>
+  }
+</aside>

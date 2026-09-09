@@ -1,0 +1,127 @@
+/* Le decimos a Angular que este componente es flexible */
+:host {
+  display: block; /* en lugar de flex */
+  width: 100%;
+  height: 100%;
+}
+
+.pos-container {
+  display: flex;
+  width: 100%;
+  height: 100%; /* Tomar el 100% del host */
+  background-color: transparent;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- CATÁLOGO (Sección Izquierda) --- */
+.catalog-section {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto; /* Aquí es donde se hará el scroll si hay muchos productos */
+
+  h2 { margin-top: 0; color: #2c3e50; }
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+  gap: 20px;
+}
+
+.product-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 2px solid transparent;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    border-color: #3498db; 
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+  }
+
+  .stock-badge {
+    background: #e1f5fe;
+    color: #0277bd;
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+  }
+
+  .product-name { margin: 0 0 5px 0; font-size: 1.1rem; color: #34495e; }
+  .product-code { margin: 0 0 15px 0; font-size: 0.85rem; color: #95a5a6; }
+  .product-price { margin: 0; font-size: 1.4rem; font-weight: bold; color: #27ae60; }
+}
+
+/* --- CARRITO / TICKET (Sección Derecha) --- */
+.cart-section {
+  width: 350px; 
+  background: white;
+  border-left: 1px solid #e0e0e0;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -5px 0 15px rgba(0,0,0,0.03);
+
+  h2 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 15px; }
+}
+
+.cart-items {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px dashed #bdc3c7;
+  
+  .item-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .item-name { color: #34495e; font-weight: bold; font-size: 1.05rem; }
+  .item-qty { color: #7f8c8d; font-size: 0.85rem; margin-top: 4px; }
+  .item-price { color: #27ae60; font-size: 1.15rem; }
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 0;
+  font-size: 1.4rem;
+  color: #2c3e50;
+  border-top: 2px solid #ecf0f1;
+  margin-bottom: 10px;
+}
+
+.empty-cart { text-align: center; color: #95a5a6; margin-top: 30px; font-style: italic; }
+
+.btn-checkout {
+  background: #2ecc71;
+  color: white;
+  border: none;
+  padding: 18px;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover:not(:disabled) { background: #27ae60; }
+  &:disabled { background: #bdc3c7; cursor: not-allowed; }
+}

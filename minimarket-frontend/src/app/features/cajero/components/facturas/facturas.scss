@@ -1,0 +1,245 @@
+/* =========================================
+   1. VARIABLES Y DISEÑO BASE
+   ========================================= */
+
+/* Obliga al componente de Angular a respetar el ancho de la pantalla */
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.page-container {
+  padding: 15px; 
+  background-color: #f4f7f6; 
+  min-height: 100vh;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%; 
+  min-width: 0;
+  overflow-x: hidden; /* <-- Solo bloqueamos que se salga de lado, no hacia abajo */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h2 { margin: 0; color: #2c3e50; font-size: 1.8rem; }
+  p { margin: 5px 0 0; color: #7f8c8d; font-size: 0.95rem; }
+}
+
+/* =========================================
+   2. ACCIONES Y BUSCADOR
+   ========================================= */
+.actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #dfe6e9;
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+
+  .icon { margin-right: 8px; font-size: 1.1rem; }
+  input {
+    border: none;
+    outline: none;
+    font-size: 0.95rem;
+    width: 250px;
+    background: transparent;
+    color: #2c3e50;
+  }
+}
+
+.btn-exportar {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2);
+  transition: all 0.2s ease;
+  
+  &:hover { 
+    background-color: #219653; 
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px rgba(39, 174, 96, 0.3);
+  }
+}
+
+/* =========================================
+   3. TABLA DE DATOS
+   ========================================= */
+.table-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto; /* Aquí ocurre la magia del scroll horizontal */
+  -webkit-overflow-scrolling: touch;
+  display: block;
+  padding-bottom: 10px;
+}
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  /* Quitamos overflow: hidden para no degollar el scroll horizontal */
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px; /* Ancho forzado para que en móviles active el scroll de .table-responsive-wrapper */
+
+  th, td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #f1f2f6;
+    color: #2c3e50;
+  }
+
+  th {
+    background-color: #f8f9fa;
+    color: #7f8c8d;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  tbody tr {
+    transition: background-color 0.2s ease;
+    &:hover { background-color: #fbfcfc; }
+  }
+}
+
+.fw-bold { font-weight: 600; }
+.text-success { color: #27ae60 !important; }
+.text-danger { color: #e74c3c !important; }
+
+/* CHECKBOXES Y FILA SELECCIONADA */
+input[type="checkbox"] { 
+  cursor: pointer; 
+  width: 18px; 
+  height: 18px; 
+  accent-color: #27ae60; 
+}
+tr.fila-seleccionada { 
+  background-color: rgba(39, 174, 96, 0.05) !important; 
+}
+
+/* BADGES (ESTADOS) */
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  display: inline-block;
+  letter-spacing: 0.5px;
+}
+.bg-success { background-color: #e8f8f5; color: #27ae60; }
+.bg-danger { background-color: #fdedec; color: #e74c3c; }
+
+/* BOTONES DE ACCIÓN (ICONOS) */
+.btn-icon {
+  background: #f8f9fa;
+  border: 1px solid #eee;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-right: 5px;
+  transition: all 0.2s;
+  
+  &:hover { background-color: #e9ecef; transform: scale(1.05); }
+}
+
+.empty-state { text-align: center; padding: 40px !important; color: #95a5a6; font-style: italic; }
+
+/* =========================================
+   4. DISEÑO RESPONSIVO (MÓVILES)
+   ========================================= */
+@media (max-width: 768px) {
+  .page-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+  .actions { width: 100%; flex-direction: column; gap: 10px; }
+  .search-bar { width: 100%; input { width: 100%; } }
+  .btn-exportar { width: 100%; justify-content: center; }
+}
+
+/* =========================================
+   5. MODAL (OJITO / TICKET PREVIEW)
+   ========================================= */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(44, 62, 80, 0.7); backdrop-filter: blur(4px);
+  display: flex; justify-content: center; align-items: center; z-index: 1000;
+}
+.modal-content {
+  background: #f4f7f6; border-radius: 12px; width: 90%; max-width: 400px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden;
+}
+@keyframes slideIn { from { transform: translateY(-30px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+
+.modal-header {
+  background: white; display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 24px; border-bottom: 1px solid #eee;
+  h3 { margin: 0; color: #2c3e50; font-size: 1.15rem; font-weight: 700; }
+  .btn-close { background: none; border: none; font-size: 1.3rem; color: #95a5a6; cursor: pointer; transition: color 0.2s; &:hover { color: #e74c3c; } }
+}
+
+.modal-ticket-preview {
+  background: white; margin: 24px; padding: 24px; border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03); font-family: 'Courier New', Courier, monospace;
+}
+
+.ticket-header { text-align: center; border-bottom: 1px dashed #bdc3c7; padding-bottom: 12px; margin-bottom: 15px; h2 { font-size: 1.3rem; } h2, p { margin: 2px 0; } }
+.ticket-info { p { margin: 6px 0; font-size: 0.9rem; color: #2c3e50; } }
+.ticket-total { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #bdc3c7; margin-top: 15px; padding-top: 15px; h2, h3 { margin: 0; } h2 { color: #27ae60; } }
+.ticket-barcode { text-align: center; margin-top: 20px; color: #7f8c8d; letter-spacing: 2px; font-size: 1.2rem; font-weight: bold; p { font-size: 0.75rem; letter-spacing: 0; margin-top: 5px; font-family: sans-serif; } }
+
+.modal-footer {
+  background: white; padding: 16px 24px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 12px;
+  .btn-cancelar { padding: 10px 18px; background: #ecf0f1; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; color: #7f8c8d; transition: background 0.2s; &:hover { background: #dfe6e9; } }
+  .btn-imprimir { padding: 10px 18px; background: #2c3e50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s; &:hover { background: #1a252f; } }
+}
+
+/* =========================================
+   6. MAGIA DE IMPRESIÓN (EL VERDADERO TICKET)
+   ========================================= */
+.zona-impresion { display: none; }
+
+@media print {
+  @page { size: 80mm auto; margin: 0; }
+  
+  :host { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 99999; }
+  .pantalla-normal, .modal-overlay { display: none !important; }
+  
+  .zona-impresion {
+    display: flex !important;
+    justify-content: center;
+    width: 100%;
+    background: white;
+    padding-top: 10mm; 
+  }
+
+  .formato-papel-ticket {
+    width: 72mm;
+    color: black;
+    font-family: 'Courier New', Courier, monospace;
+  }
+}
