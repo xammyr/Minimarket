@@ -83,6 +83,27 @@
 
     &:hover { background: #e74c3c; color: white; border-color: #e74c3c; }
   }
+
+  .admin-btn {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid #f1c40f;
+    color: #f1c40f;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    text-decoration: none;
+
+    &:hover { background: #f1c40f; color: #2c3e50; }
+  }
 }
 
 /* --- MAIN CONTENT --- */

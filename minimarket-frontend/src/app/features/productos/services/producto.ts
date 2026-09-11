@@ -8,9 +8,17 @@ import { ApiResponse, Producto } from '../models/producto.interface';
 })
 export class ProductoService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/productos';
+  private apiUrl = '/api/productos';
 
   obtenerProductos(): Observable<ApiResponse<Producto[]>> {
     return this.http.get<ApiResponse<Producto[]>>(this.apiUrl);
+  }
+
+  crearProducto(data: any): Observable<ApiResponse<Producto>> {
+    return this.http.post<ApiResponse<Producto>>(this.apiUrl, data);
+  }
+
+  actualizarProducto(id: number, data: any): Observable<ApiResponse<Producto>> {
+    return this.http.put<ApiResponse<Producto>>(`${this.apiUrl}/${id}`, data);
   }
 }

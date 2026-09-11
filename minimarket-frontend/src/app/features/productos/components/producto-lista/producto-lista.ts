@@ -1,7 +1,8 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core'; 
+import { Component, inject, OnInit, signal, computed, HostListener } from '@angular/core'; 
 import { HttpClient } from '@angular/common/http';
 import { ProductoService } from '../../services/producto';
 import { Producto } from '../../models/producto.interface';
+import Swal from 'sweetalert2';
 
 export interface DetalleCarrito {
   producto: Producto;
@@ -21,6 +22,10 @@ export class ProductoLista implements OnInit {
   
   productos = signal<Producto[]>([]);
   carrito = signal<DetalleCarrito[]>([]); 
+  
+  // Variables para el escáner de código de barras
+  private barcodeBuffer = '';
+  private lastKeyTime = 0;
 
   total = computed(() => {
     return this.carrito().reduce((suma, item) => suma + item.subtotal, 0);
@@ -32,6 +37,60 @@ export class ProductoLista implements OnInit {
 
   ngOnInit(): void {
     this.cargarProductos();
+  }
+
+  // Escuchar eventos globales del teclado (Escáner de Barras)
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    // Si el usuario está escribiendo en un input, no interferimos
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+      return;
+    }
+
+    const currentTime = new Date().getTime();
+    
+    // Si pasó mucho tiempo (ej: más de 100ms), reiniciamos el buffer porque fue tecleo humano
+    if (currentTime - this.lastKeyTime > 100) {
+      this.barcodeBuffer = '';
+    }
+    
+    if (event.key === 'Enter') {
+      if (this.barcodeBuffer.length > 0) {
+        event.preventDefault(); // Evitar que el Enter dispare clics accidentales en botones
+        this.procesarCodigoEscaneado(this.barcodeBuffer);
+        this.barcodeBuffer = '';
+      }
+    } else if (event.key.length === 1) { // Evitar Shift, Ctrl, etc.
+      this.barcodeBuffer += event.key;
+    }
+
+    this.lastKeyTime = currentTime;
+  }
+
+  procesarCodigoEscaneado(codigo: string) {
+    const producto = this.productos().find(p => p.codigoBarras === codigo || p.codigoInterno === codigo);
+    
+    if (producto) {
+      this.agregarAlCarrito(producto);
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: `${producto.nombre} agregado`,
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } else {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Producto no encontrado',
+        text: `Código: ${codigo}`,
+        showConfirmButton: false,
+        timer: 2500
+      });
+    }
   }
 
   cargarProductos() {
@@ -61,14 +120,22 @@ export class ProductoLista implements OnInit {
     });
   }
 
+  eliminarDelCarrito(productoId: number) {
+    this.carrito.update(items => items.filter(item => item.producto.id !== productoId));
+  }
+
   cobrar() {
     if (this.carrito().length === 0) return;
     
     // Primero obtenemos el turno actual de la caja
-    this.http.get<any>('http://localhost:8080/api/caja-turnos/actual/1').subscribe({
+    this.http.get<any>('/api/caja-turnos/actual/1').subscribe({
       next: (turnoRes) => {
         if (!turnoRes.data || !turnoRes.data.id) {
-          alert("Error: No hay un turno de caja abierto.");
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No hay un turno de caja abierto.'
+          });
           return;
         }
 
@@ -92,22 +159,38 @@ export class ProductoLista implements OnInit {
           ]
         };
 
-        this.http.post<any>('http://localhost:8080/api/ventas', request).subscribe({
+        this.http.post<any>('/api/ventas', request).subscribe({
           next: (res) => {
-            alert("Venta registrada con éxito: " + res.data.numeroComprobante);
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: `Venta ${res.data.numeroComprobante} registrada`,
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true
+            });
             this.carrito.set([]); // Limpiar carrito
             this.cargarProductos(); // Refrescar stock
           },
           error: (err) => {
             console.error("Error al registrar venta", err);
-            alert("Error al registrar la venta: " + (err.error?.message || err.message));
+            Swal.fire({
+              icon: 'error',
+              title: 'Error al registrar venta',
+              text: err.error?.message || err.message
+            });
           }
         });
 
       },
       error: (err) => {
         console.error("Error al obtener turno actual", err);
-        alert("Error: ¿La caja está abierta?");
+        Swal.fire({
+          icon: 'warning',
+          title: 'Caja Cerrada',
+          text: 'Debes abrir turno de caja antes de vender.'
+        });
       }
     });
   }

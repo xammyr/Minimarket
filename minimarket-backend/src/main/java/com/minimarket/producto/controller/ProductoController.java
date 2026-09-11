@@ -36,7 +36,6 @@ public class ProductoController {
     private final ProductoService productoService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('PRODUCTO_VER')")
     public ApiResponse<Page<ProductoResponseDTO>> listar(
             @RequestParam(required = false) String busqueda,
             Pageable pageable) {
@@ -44,13 +43,11 @@ public class ProductoController {
     }
 
     @GetMapping("/barcode/{codigoBarras}")
-    @PreAuthorize("hasAuthority('PRODUCTO_VER')")
     public ApiResponse<ProductoResponseDTO> obtenerPorCodigoBarras(@PathVariable String codigoBarras) {
         return ApiResponse.ok(productoService.obtenerPorCodigoBarras(codigoBarras));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('PRODUCTO_VER')")
     public ApiResponse<ProductoResponseDTO> obtener(@PathVariable Long id) {
         return ApiResponse.ok(productoService.obtenerPorId(id));
     }

@@ -1,0 +1,103 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h2><i class="fa-solid fa-chart-line" style="color: #3498db;"></i> Dashboard Principal</h2>
+      <p>Resumen general del negocio</p>
+    </div>
+    <button class="btn-refresh" (click)="cargarDatos()" [disabled]="cargando">
+      <i class="fa-solid fa-rotate" [class.fa-spin]="cargando"></i> Actualizar
+    </button>
+  </div>
+
+  <div *ngIf="cargando" class="loading-state">
+    <i class="fa-solid fa-spinner fa-spin"></i> Cargando resumen...
+  </div>
+
+  <div *ngIf="!cargando" class="dashboard-content">
+    
+    <!-- Tarjetas de Resumen -->
+    <div class="summary-cards">
+      <div class="card stat-card">
+        <div class="stat-icon" style="background: #e8f4f8; color: #3498db;">
+          <i class="fa-solid fa-sack-dollar"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Ingresos (Últimas Ventas)</h3>
+          <p class="stat-value">S/ {{ montoTotalVentas.toFixed(2) }}</p>
+        </div>
+      </div>
+
+      <div class="card stat-card">
+        <div class="stat-icon" style="background: #e8f8f5; color: #2ecc71;">
+          <i class="fa-solid fa-receipt"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Ventas Realizadas</h3>
+          <p class="stat-value">{{ totalVentas }}</p>
+        </div>
+      </div>
+
+      <div class="card stat-card">
+        <div class="stat-icon" style="background: #fcf3cf; color: #f1c40f;">
+          <i class="fa-solid fa-box-open"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Productos en Catálogo</h3>
+          <p class="stat-value">{{ totalProductos }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico de Ventas -->
+    <div class="card chart-card">
+      <h3><i class="fa-solid fa-chart-bar"></i> Ventas de los Últimos 7 Días</h3>
+      
+      <div class="chart-container">
+        <!-- Contenedor de las barras -->
+        <div class="bars-wrapper">
+          <div class="bar-column" *ngFor="let venta of ventasPorDia; let i = index">
+            <!-- Etiqueta del monto encima de la barra -->
+            <div class="bar-value">S/ {{ venta.toFixed(2) }}</div>
+            <!-- La barra en sí misma -->
+            <div class="bar" [style.height.%]="(venta / maxVentaDia) * 100" (click)="verDetalleDia(i)" title="Click para ver detalles del día" style="cursor: pointer;"></div>
+            <!-- Etiqueta del día debajo -->
+            <div class="bar-label">{{ dias[i] }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Ventas Recientes -->
+    <div class="card recent-sales-card">
+      <h3><i class="fa-solid fa-clock-rotate-left"></i> Últimas 5 Ventas</h3>
+      
+      <div *ngIf="ventasRecientes.length === 0" style="padding: 20px; color: #7f8c8d; text-align: center;">
+        No hay ventas recientes.
+      </div>
+      
+      <table *ngIf="ventasRecientes.length > 0" class="data-table">
+        <thead>
+          <tr>
+            <th>Comprobante</th>
+            <th>Fecha / Hora</th>
+            <th>Total</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let v of ventasRecientes">
+            <td style="font-family: monospace;">{{ v.numeroVenta }}</td>
+            <td>{{ v.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td style="font-weight: bold; color: #2c3e50;">S/ {{ v.total.toFixed(2) }}</td>
+            <td>
+              <span class="badge" [class.badge-success]="v.estado === 'COMPLETADA'" [class.badge-danger]="v.estado === 'ANULADA'">
+                {{ v.estado }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

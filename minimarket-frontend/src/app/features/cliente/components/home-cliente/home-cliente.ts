@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ProductoService } from '../../../productos/services/producto'; 
 import { Producto } from '../../../productos/models/producto.interface';
+import { RouterModule } from '@angular/router';
 
 export interface DetalleCarrito {
   producto: Producto;
@@ -11,6 +12,7 @@ export interface DetalleCarrito {
 @Component({
   selector: 'app-home-cliente',
   standalone: true,
+  imports: [RouterModule],
   templateUrl: './home-cliente.html',
   styleUrl: './home-cliente.scss'
 })
@@ -128,5 +130,41 @@ export class HomeCliente implements OnInit {
     alert("¡Simulación de pago exitosa!\nGracias por tu compra.");
     this.carrito.set([]);
     this.isCartOpen.set(false);
+  }
+
+  async mostrarTerminos() {
+    const Swal = (await import('sweetalert2')).default;
+    Swal.fire({
+      title: 'Términos y Condiciones',
+      html: `
+        <div style="text-align: left; font-size: 0.95rem; line-height: 1.5;">
+          <p><strong>1. Uso del sitio web:</strong> El uso de esta tienda virtual implica la aceptación de los presentes términos y condiciones.</p>
+          <p><strong>2. Precios y disponibilidad:</strong> Los precios están expresados en moneda local (Soles). Nos reservamos el derecho de modificar los precios en cualquier momento. La disponibilidad de los productos puede variar.</p>
+          <p><strong>3. Envíos y entregas:</strong> Las entregas se realizan dentro de las zonas de cobertura indicadas. El tiempo estimado de entrega será confirmado al momento de realizar la compra.</p>
+          <p><strong>4. Cambios y devoluciones:</strong> Solo se aceptarán devoluciones de productos defectuosos dentro de las 24 horas posteriores a la entrega presentando el comprobante de pago electrónico.</p>
+        </div>
+      `,
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#3498db',
+      width: '600px'
+    });
+  }
+
+  async mostrarPrivacidad() {
+    const Swal = (await import('sweetalert2')).default;
+    Swal.fire({
+      title: 'Política de Privacidad',
+      html: `
+        <div style="text-align: left; font-size: 0.95rem; line-height: 1.5;">
+          <p><strong>1. Uso de datos:</strong> Los datos personales (nombre, correo, dirección) solicitados al momento de registro o compra serán utilizados única y exclusivamente para el procesamiento de los pedidos y el envío de información sobre el estado de los mismos.</p>
+          <p><strong>2. Seguridad:</strong> Nos comprometemos a proteger su información personal. No compartimos, vendemos ni alquilamos bases de datos de clientes a terceros.</p>
+          <p><strong>3. Cookies:</strong> Nuestro sitio utiliza cookies esenciales para mantener el carrito de compras y la sesión activa durante su navegación.</p>
+          <p><strong>4. Derechos ARCO:</strong> Usted puede solicitar el acceso, rectificación, cancelación u oposición al uso de sus datos comunicándose con nuestro equipo de soporte.</p>
+        </div>
+      `,
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#3498db',
+      width: '600px'
+    });
   }
 }

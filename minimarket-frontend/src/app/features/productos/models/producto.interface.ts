@@ -17,9 +17,14 @@ export interface Producto {
   categoriaNombre: string;
   marcaId: number;
   marcaNombre: string;
+  unidadMedidaId: number;
   unidadMedidaAbreviatura: string;
   precioCompra: number;
   precioVenta: number;
+  afectoIgv: boolean;
   stockActual: number;
+  stockMinimo: number;
+  controlaStock: boolean;
   activo: boolean;
+  creadoEn?: string;
 }

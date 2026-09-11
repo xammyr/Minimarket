@@ -23,8 +23,8 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/error").permitAll()
-                        .requestMatchers("/api/facturas/**").permitAll() // <--- ¡AQUÍ LO AGREGAS!
-                        .requestMatchers(HttpMethod.GET, "/api/productos/**").hasAuthority("PRODUCTO_VER")
+                        .requestMatchers("/api/facturas/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

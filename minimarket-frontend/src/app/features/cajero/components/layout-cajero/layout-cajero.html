@@ -8,7 +8,7 @@
   <!-- BARRA LATERAL (SIDEBAR) -->
   <aside class="sidebar" [class.abierto]="sidebarAbierto()">
     <div class="cajero-profile">
-      <div class="avatar">👨‍💼</div>
+      <div class="avatar"><i class="fa-solid fa-user-tie"></i></div>
       <div class="info">
         <h3>Caja Principal</h3>
         <span class="status online">● Operativa</span>
@@ -18,25 +18,33 @@
     <nav class="sidebar-menu">
       <!-- Los routerLink dirigen a la ruta exacta configurada en app.routes.ts -->
       <a routerLink="/caja" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="menu-item">
-        <span class="icon">🛒</span> Nueva Venta (POS)
+        <span class="icon"><i class="fa-solid fa-cart-shopping"></i></span> Nueva Venta (POS)
       </a>
       
       <a routerLink="/caja/facturas" routerLinkActive="active" class="menu-item">
-        <span class="icon">🧾</span> Facturas / Boletas
+        <span class="icon"><i class="fa-solid fa-file-invoice"></i></span> Facturas / Boletas
       </a>
       
       <a routerLink="/caja/compras" routerLinkActive="active" class="menu-item">
-        <span class="icon">📦</span> Registro de Compras
+        <span class="icon"><i class="fa-solid fa-box-open"></i></span> Registro de Compras
       </a>
       
       <a routerLink="/caja/corte" routerLinkActive="active" class="menu-item">
-        <span class="icon">💰</span> Corte de Caja
+        <span class="icon"><i class="fa-solid fa-sack-dollar"></i></span> Corte de Caja
       </a>
     </nav>
 
     <div class="sidebar-footer">
-      <button class="logout-btn">
-        <span class="icon">🚪</span> Salir
+      <div style="padding-bottom: 15px; text-align: center; color: #bdc3c7; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px;">
+        <i class="fa-solid fa-user-circle"></i> {{ nombreCajero }}
+      </div>
+      
+      <a *ngIf="esAdmin" routerLink="/admin" class="admin-btn">
+        <span class="icon"><i class="fa-solid fa-shield-halved"></i></span> Panel Admin
+      </a>
+
+      <button class="logout-btn" (click)="logout()">
+        <span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span> Salir
       </button>
     </div>
   </aside>
@@ -45,7 +53,7 @@
   <main class="main-content">
     <header class="top-header">
       <!-- NUEVO BOTÓN HAMBURGUESA (Oculto en PC, visible en móvil) -->
-      <button class="btn-menu" (click)="toggleSidebar()">☰</button>
+      <button class="btn-menu" (click)="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
       
       <h2>Sistema de Caja</h2>
       <div class="time-display">

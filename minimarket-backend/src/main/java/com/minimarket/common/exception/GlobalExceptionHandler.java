@@ -16,11 +16,12 @@ public class GlobalExceptionHandler {
  @ExceptionHandler(BadCredentialsException.class) public ResponseEntity<ApiResponse<Void>> credentials(){return body(HttpStatus.UNAUTHORIZED,"Credenciales inválidas");}
  @ExceptionHandler(AccessDeniedException.class) public ResponseEntity<ApiResponse<Void>> denied(){return body(HttpStatus.FORBIDDEN,"No tienes permisos para realizar esta operación");}
  @ExceptionHandler(MethodArgumentNotValidException.class) public ResponseEntity<ApiResponse<Map<String,String>>> validation(MethodArgumentNotValidException e){Map<String,String> m=new LinkedHashMap<>();e.getBindingResult().getFieldErrors().forEach(x->m.putIfAbsent(x.getField(),x.getDefaultMessage()));return ResponseEntity.badRequest().body(new ApiResponse<>(false,m,"Error de validación",OffsetDateTime.now()));}
- @ExceptionHandler(DataIntegrityViolationException.class) public ResponseEntity<ApiResponse<Void>> integrity(){return body(HttpStatus.CONFLICT,"La operación viola una restricción de datos");}
+ @ExceptionHandler(DataIntegrityViolationException.class) public ResponseEntity<ApiResponse<Void>> integrity(){return body(HttpStatus.CONFLICT,"La operación viola una restricción de datos (ej. nombre de usuario duplicado)");}
+ @ExceptionHandler(IllegalArgumentException.class) public ResponseEntity<ApiResponse<Void>> illegalArgument(IllegalArgumentException e){return body(HttpStatus.BAD_REQUEST, e.getMessage());}
  @ExceptionHandler(Exception.class)
  public ResponseEntity<ApiResponse<Void>> generic(Exception e) {
   e.printStackTrace(); // <-- Esto obligará a Java a imprimir el error real en tu consola
-  return body(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
+  return body(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor: " + e.getMessage() + " - " + e.getClass().getName());
  }
  private ResponseEntity<ApiResponse<Void>> body(HttpStatus s,String m){return ResponseEntity.status(s).body(ApiResponse.error(m));}
 }

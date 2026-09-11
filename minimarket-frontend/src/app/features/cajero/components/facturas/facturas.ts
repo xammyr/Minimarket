@@ -21,7 +21,7 @@ export class Facturas implements OnInit {
   seleccionados = signal<string[]>([]);
 
   ngOnInit() {
-    this.http.get<any>('http://localhost:8080/api/ventas?size=50').subscribe({
+    this.http.get<any>('/api/ventas?size=50').subscribe({
       next: (res) => {
         if (res.data && res.data.content) {
           this.listaFacturas.set(res.data.content);
@@ -86,16 +86,21 @@ export class Facturas implements OnInit {
 
     if (datosAExportar.length === 0) return alert('No hay comprobantes para exportar.');
 
-    // Map the backend dto to FacturaExportDto
-    const dtos = datosAExportar.map(v => ({
-      numeroVenta: v.numeroVenta,
-      fechaVenta: v.fechaVenta,
-      subtotal: v.subtotal,
-      descuento: v.descuento,
-      igv: v.igv,
-      total: v.total,
-      estado: v.estado
-    }));
+    const dtos = datosAExportar.map(v => {
+      // Convertir la lista de detalles en un string legible
+      let detallesStr = 'Sin detalles';
+      if (v.detalles && v.detalles.length > 0) {
+        detallesStr = v.detalles.map((d: any) => `${d.cantidad}x ${d.producto}`).join('\n');
+      }
+
+      return {
+        id: v.numeroVenta,
+        cliente: 'Cliente General', // Ajusta si tienes cliente
+        total: v.total,
+        estado: v.estado,
+        detalleProductos: detallesStr // Nueva columna mapeada
+      };
+    });
 
     this.facturaService.exportarExcel(dtos).subscribe({
       next: (archivoBlob: Blob) => {

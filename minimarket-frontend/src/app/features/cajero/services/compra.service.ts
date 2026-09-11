@@ -43,7 +43,7 @@ export interface CompraDetalleRequestDTO {
 })
 export class CompraService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/v1/compras';
+  private apiUrl = '/api/v1/compras';
 
   registrarCompra(request: CompraRequestDTO): Observable<any> {
     return this.http.post<any>(this.apiUrl, request);

@@ -1,0 +1,68 @@
+<div class="login-wrapper">
+  <div class="login-container">
+    <div class="login-header">
+      <div class="icon"><i class="fa-solid fa-cart-shopping" style="color: #3498db; font-size: 32px;"></i></div>
+      <h2>Sistema Minimarket</h2>
+      <p>Ingrese sus credenciales para continuar</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      
+      <div class="form-group">
+        <label>Usuario</label>
+        <div class="input-wrapper">
+          <span class="input-icon"><i class="fa-solid fa-user"></i></span>
+          <input 
+            type="text" 
+            name="username" 
+            [(ngModel)]="username" 
+            placeholder="admin / cajero1" 
+            required
+            [disabled]="loading">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contraseña</label>
+        <div class="input-wrapper">
+          <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            name="password" 
+            [(ngModel)]="password" 
+            placeholder="••••••••" 
+            required
+            [disabled]="loading"
+            style="padding-right: 40px;">
+          <button type="button" class="btn-eye" (click)="togglePassword()" style="background: none; border: none; cursor: pointer; color: #7f8c8d;">
+            @if (showPassword) {
+              <i class="fa-solid fa-eye-slash"></i>
+            } @else {
+              <i class="fa-solid fa-eye"></i>
+            }
+          </button>
+        </div>
+      </div>
+
+      @if (errorMsg) {
+        <div class="error-message">
+          <i class="fa-solid fa-triangle-exclamation"></i> {{ errorMsg }}
+        </div>
+      }
+
+      <button type="submit" class="btn-login" [disabled]="loading">
+        @if (loading) {
+          <span><i class="fa-solid fa-spinner fa-spin"></i> Iniciando sesión...</span>
+        } @else {
+          <span>Ingresar</span>
+        }
+      </button>
+
+    </form>
+
+    <div class="login-footer">
+      <a routerLink="/tienda" style="text-decoration: none; color: #3498db;"><i class="fa-solid fa-arrow-left"></i> Volver a la Tienda</a>
+    </div>
+
+  </div>
+</div>

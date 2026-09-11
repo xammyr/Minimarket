@@ -1,0 +1,195 @@
+<div class='admin-page'>
+  <div class='page-header' style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h2 style="display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-boxes-stacked" style="color: #3498db;"></i> Gestión de Inventario</h2>
+      <p>Administra los productos, precios y stock del minimarket.</p>
+    </div>
+    <button class='btn-primary' (click)="abrirModalNuevo()" style='background: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;'><i class="fa-solid fa-plus"></i> Nuevo Producto</button>
+  </div>
+
+  <div class='card' style='background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-top: 20px;'>
+    
+    @if (cargando()) {
+      <div style='text-align: center; padding: 40px; color: #7f8c8d;'>
+        <h3><i class="fa-solid fa-spinner fa-spin"></i> Cargando inventario...</h3>
+      </div>
+    } @else {
+      <table style='width: 100%; border-collapse: collapse; text-align: left;'>
+        <thead>
+          <tr style='border-bottom: 2px solid #eee; color: #2c3e50;'>
+            <th style='padding: 12px; font-weight: bold;'>Código</th>
+            <th style='padding: 12px; font-weight: bold;'>Nombre</th>
+            <th style='padding: 12px; font-weight: bold;'>Categoría</th>
+            <th style='padding: 12px; font-weight: bold;'>Precio Venta</th>
+            <th style='padding: 12px; font-weight: bold;'>Stock Actual</th>
+            <th style='padding: 12px; font-weight: bold;'>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of productos(); track p.id) {
+            <tr style='border-bottom: 1px solid #eee;'>
+              <td style='padding: 12px; color: #7f8c8d; font-family: monospace;'>{{ p.codigoInterno }}</td>
+              <td style='padding: 12px; font-weight: 500;'>{{ p.nombre }}</td>
+              <td style='padding: 12px;'>{{ p.categoriaNombre }}</td>
+              <td style='padding: 12px;'>S/ {{ p.precioVenta.toFixed(2) }}</td>
+              <td style='padding: 12px;'>
+                <span [style.color]="p.stockActual <= p.stockMinimo ? '#e74c3c' : '#27ae60'" style='font-weight: bold;'>
+                  {{ p.stockActual }} {{ p.unidadMedidaAbreviatura }}
+                </span>
+                @if (p.stockActual <= p.stockMinimo) {
+                  <span title='Stock bajo' style='margin-left: 5px; color: #f39c12;'><i class="fa-solid fa-triangle-exclamation"></i></span>
+                }
+              </td>
+              <td style='padding: 12px;'>
+                <button (click)="abrirModalEditar(p)" style='background: #3498db; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer; margin-right: 5px;'><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan='6' style='text-align: center; padding: 20px; color: #7f8c8d;'>No hay productos registrados.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+  <!-- Modal -->
+  @if (mostrarModal()) {
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+      <div style="background: white; padding: 30px; border-radius: 8px; width: 600px; max-width: 90%; max-height: 90vh; overflow-y: auto;">
+        <h2 style="margin-top: 0;">{{ modoEdicion() ? 'Editar Producto' : 'Nuevo Producto' }}</h2>
+        
+        <form (ngSubmit)="guardarProducto()" #form="ngForm" style="display: flex; flex-direction: column; gap: 15px;">
+          
+          <div style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label style="font-weight: bold; display: block; margin-bottom: 5px;">Código Interno *</label>
+              <input type="text" [(ngModel)]="formulario.codigoInterno" name="codigoInterno" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div style="flex: 1;">
+              <label style="font-weight: bold; display: block; margin-bottom: 5px;">Código Barras</label>
+              <input type="text" [(ngModel)]="formulario.codigoBarras" name="codigoBarras" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+          </div>
+
+          <div>
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Nombre *</label>
+            <input type="text" [(ngModel)]="formulario.nombre" name="nombre" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+          </div>
+
+          <div>
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Descripción</label>
+            <textarea [(ngModel)]="formulario.descripcion" name="descripcion" rows="2" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+          </div>
+
+          <div style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <label style="font-weight: bold; margin: 0;">Categoría *</label>
+                <a href="javascript:void(0)" (click)="agregarCategoria()" style="font-size: 12px; color: #3498db; text-decoration: none; font-weight: bold;">+ Nueva</a>
+              </div>
+              <select [(ngModel)]="formulario.categoriaId" name="categoriaId" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <option [ngValue]="null">Seleccione...</option>
+                @for (c of categorias(); track c.id) {
+                  <option [ngValue]="c.id">{{ c.nombre }}</option>
+                }
+              </select>
+            </div>
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <label style="font-weight: bold; margin: 0;">Marca</label>
+                <a href="javascript:void(0)" (click)="agregarMarca()" style="font-size: 12px; color: #3498db; text-decoration: none; font-weight: bold;">+ Nueva</a>
+              </div>
+              <select [(ngModel)]="formulario.marcaId" name="marcaId" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <option [ngValue]="null">Seleccione...</option>
+                @for (m of marcas(); track m.id) {
+                  <option [ngValue]="m.id">{{ m.nombre }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <label style="font-weight: bold; margin: 0;">Unidad Medida *</label>
+                <a href="javascript:void(0)" (click)="agregarUnidad()" style="font-size: 12px; color: #3498db; text-decoration: none; font-weight: bold;">+ Nueva</a>
+              </div>
+              <select [(ngModel)]="formulario.unidadMedidaId" name="unidadMedidaId" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <option [ngValue]="null">Seleccione...</option>
+                @for (u of unidades(); track u.id) {
+                  <option [ngValue]="u.id">{{ u.nombre }} ({{ u.abreviatura }})</option>
+                }
+              </select>
+            </div>
+            <div style="flex: 1;">
+              <label style="font-weight: bold; display: block; margin-bottom: 5px;">Stock Mínimo *</label>
+              <input type="number" [(ngModel)]="formulario.stockMinimo" name="stockMinimo" required min="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label style="font-weight: bold; display: block; margin-bottom: 5px;">Precio Compra *</label>
+              <input type="number" step="0.01" [(ngModel)]="formulario.precioCompra" name="precioCompra" required min="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div style="flex: 1;">
+              <label style="font-weight: bold; display: block; margin-bottom: 5px;">Precio Venta *</label>
+              <input type="number" step="0.01" [(ngModel)]="formulario.precioVenta" name="precioVenta" required min="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 15px;">
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+              <input type="checkbox" [(ngModel)]="formulario.afectoIgv" name="afectoIgv"> Afecto a IGV
+            </label>
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+              <input type="checkbox" [(ngModel)]="formulario.controlaStock" name="controlaStock"> Controla Stock
+            </label>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 15px;">
+            <button type="button" (click)="cerrarModal()" style="padding: 10px 20px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+            <button type="submit" [disabled]="!form.valid" style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px;" [style.opacity]="form.valid ? 1 : 0.5">
+              <i class="fa-solid fa-floppy-disk"></i> Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Modal Pequeño para Nueva Categoría/Marca/Unidad -->
+  @if (promptActivo()) {
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000;">
+      <div style="background: white; padding: 25px; border-radius: 8px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-plus-circle" style="color: #3498db;"></i>
+          Nueva {{ promptTipo() === 'categoria' ? 'Categoría' : promptTipo() === 'marca' ? 'Marca' : 'Unidad de Medida' }}
+        </h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+          <div>
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Nombre *</label>
+            <input type="text" [(ngModel)]="promptDatos.nombre" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Ej. Lácteos" (keyup.enter)="guardarPrompt()">
+          </div>
+          
+          @if (promptTipo() === 'unidad') {
+            <div>
+              <label style="font-weight: bold; display: block; margin-bottom: 5px;">Abreviatura *</label>
+              <input type="text" [(ngModel)]="promptDatos.abreviatura" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Ej. LTR" (keyup.enter)="guardarPrompt()">
+            </div>
+          }
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button type="button" (click)="cerrarPrompt()" style="padding: 8px 15px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+          <button type="button" (click)="guardarPrompt()" style="padding: 8px 15px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;" [disabled]="!promptDatos.nombre || (promptTipo() === 'unidad' && !promptDatos.abreviatura)">
+            <i class="fa-solid fa-check"></i> Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

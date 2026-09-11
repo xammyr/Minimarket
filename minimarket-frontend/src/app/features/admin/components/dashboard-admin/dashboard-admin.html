@@ -1,4 +1,31 @@
-<div style="padding: 40px; font-family: sans-serif; background: #2c3e50; color: white; height: 100vh;">
-  <h1>👔 Panel de Control de Administración</h1>
-  <p>Aquí construiremos los gráficos de ventas, gestión de cajas y reportes de inventario.</p>
+<div style="display: flex; height: 100vh; font-family: sans-serif; background: #ecf0f1;">
+  
+  <!-- Sidebar Admin -->
+  <aside style="width: 250px; background: #2c3e50; color: white; padding: 20px; display: flex; flex-direction: column;">
+    <h2 style="margin-top: 0; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-user-tie"></i> Admin Panel</h2>
+    
+    <nav style="display: flex; flex-direction: column; gap: 15px; margin-top: 30px; flex: 1;">
+      <a *ngIf="esAdmin" routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" style="color: #bdc3c7; text-decoration: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a routerLink="/admin/inventario" routerLinkActive="active" style="color: #bdc3c7; text-decoration: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-box-open"></i> Inventario</a>
+      <a *ngIf="esAdmin" routerLink="/admin/usuarios" routerLinkActive="active" style="color: #bdc3c7; text-decoration: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-users"></i> Usuarios</a>
+    </nav>
+    
+    <div style="border-top: 1px solid #34495e; padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+      <!-- Link a Caja -->
+      <a *ngIf="esAdmin" routerLink="/caja" style="color: #2ecc71; text-decoration: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-cash-register"></i> Ir a Caja
+      </a>
+      <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-top: 5px; text-align: center; color: #bdc3c7; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <i class="fa-solid fa-user-circle"></i> {{ nombreAdmin }}
+      </div>
+      <a (click)="logout()" style="color: #e74c3c; text-decoration: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+      </a>
+    </div>
+  </aside>
+
+  <!-- Contenido principal -->
+  <main style="flex: 1; padding: 40px; overflow-y: auto;">
+    <router-outlet></router-outlet>
+  </main>
 </div>

@@ -2,17 +2,17 @@
 <div class="page-container pantalla-normal">
   <div class="page-header">
     <div>
-      <h2>🧾 Facturas y Boletas</h2>
+      <h2><i class="fa-solid fa-file-invoice" style="color: #3498db;"></i> Facturas y Boletas</h2>
       <p>Historial de ventas y comprobantes emitidos en caja</p>
     </div>
     
     <div class="actions">
       <div class="search-bar">
-        <span class="icon">🔍</span>
+        <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
         <input type="text" placeholder="Buscar N° comprobante o estado..." (input)="actualizarBusqueda($event)">
       </div>
       <button class="btn-exportar" (click)="descargarExcel()">
-        📥 Exportar {{ seleccionados().length > 0 ? seleccionados().length + ' seleccionados' : 'Excel' }}
+        <i class="fa-solid fa-file-excel"></i> Exportar {{ seleccionados().length > 0 ? seleccionados().length + ' seleccionados' : 'Excel' }}
       </button>
     </div>
   </div>
@@ -50,8 +50,8 @@
               </td>
               <td class="fw-bold text-success">S/ {{ factura.total.toFixed(2) }}</td>
               <td>
-                <button class="btn-icon" title="Ver detalle" (click)="verDetalle(factura)">👁️</button>
-                <button class="btn-icon" title="Imprimir PDF" (click)="imprimirFactura(factura)">🖨️</button>
+                <button class="btn-icon" title="Ver detalle" (click)="verDetalle(factura)"><i class="fa-solid fa-eye"></i></button>
+                <button class="btn-icon" title="Imprimir PDF" (click)="imprimirFactura(factura)"><i class="fa-solid fa-print"></i></button>
               </td>
             </tr>
           } @empty {
@@ -72,7 +72,7 @@
       
       <div class="modal-header">
         <h3>Detalle de Comprobante</h3>
-        <button class="btn-close" (click)="cerrarModal()">✖</button>
+        <button class="btn-close" (click)="cerrarModal()"><i class="fa-solid fa-xmark"></i></button>
       </div>
       
       <div class="modal-ticket-preview">
@@ -93,6 +93,23 @@
           </p>
         </div>
 
+        <div class="ticket-items">
+          <table style="width: 100%; text-align: left; margin: 15px 0; border-collapse: collapse; font-size: 0.9rem;">
+            <tr style="border-bottom: 1px dashed #ccc;">
+              <th style="padding-bottom: 5px;">Cant.</th>
+              <th style="padding-bottom: 5px;">Producto</th>
+              <th style="padding-bottom: 5px; text-align: right;">Total</th>
+            </tr>
+            @for (detalle of facturaSeleccionada.detalles; track detalle.id) {
+              <tr>
+                <td style="padding: 5px 0;">{{ detalle.cantidad }}</td>
+                <td style="padding: 5px 0;">{{ detalle.producto }}</td>
+                <td style="padding: 5px 0; text-align: right;">S/ {{ detalle.total.toFixed(2) }}</td>
+              </tr>
+            }
+          </table>
+        </div>
+
         <div class="ticket-total">
           <h3>TOTAL</h3>
           <h2>S/ {{ facturaSeleccionada.total.toFixed(2) }}</h2>
@@ -106,7 +123,7 @@
 
       <div class="modal-footer">
         <button class="btn-cancelar" (click)="cerrarModal()">Cerrar</button>
-        <button class="btn-imprimir" (click)="imprimirFactura(facturaSeleccionada)">🖨️ Imprimir Ticket</button>
+        <button class="btn-imprimir" (click)="imprimirFactura(facturaSeleccionada)"><i class="fa-solid fa-print"></i> Imprimir Ticket</button>
       </div>
       
     </div>
@@ -125,6 +142,21 @@
       <p style="margin: 2px 0;"><strong>Fecha:</strong> {{ facturaSeleccionada.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</p>
       <p style="margin: 2px 0; border-bottom: 1px dashed black; padding-bottom: 5px;"><strong>Cliente:</strong> {{ facturaSeleccionada.clienteId || 'Público General' }}</p>
       
+      <table style="width: 100%; text-align: left; margin: 10px 0; border-collapse: collapse; font-size: 11px;">
+        <tr style="border-bottom: 1px dashed black;">
+          <th>Cant.</th>
+          <th>Producto</th>
+          <th style="text-align: right;">Total</th>
+        </tr>
+        @for (detalle of facturaSeleccionada.detalles; track detalle.id) {
+          <tr>
+            <td style="padding: 3px 0;">{{ detalle.cantidad }}</td>
+            <td style="padding: 3px 0;">{{ detalle.producto }}</td>
+            <td style="padding: 3px 0; text-align: right;">S/ {{ detalle.total.toFixed(2) }}</td>
+          </tr>
+        }
+      </table>
+
       <h3 style="text-align: center; margin: 15px 0; font-size: 16px;">TOTAL: S/ {{ facturaSeleccionada.total.toFixed(2) }}</h3>
       
       <p style="text-align: center; margin-top: 20px; font-size: 11px; border-top: 1px dashed black; padding-top: 10px;">¡Gracias por su compra!</p>

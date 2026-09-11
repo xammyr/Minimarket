@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class FacturaService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/facturas'; 
+  private apiUrl = '/api/facturas'; 
 
   obtenerFacturas(): Observable<any> {
     return this.http.get(`${this.apiUrl}`);

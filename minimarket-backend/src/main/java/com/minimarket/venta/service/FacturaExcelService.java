@@ -12,7 +12,7 @@ import java.util.List;
 public class FacturaExcelService {
 
     // Estructura exacta de los datos que nos enviará Angular
-    public record FacturaExportDto(String id, String cliente, double total, String estado) {}
+    public record FacturaExportDto(String id, String cliente, double total, String estado, String detalleProductos) {}
 
     // Ahora recibimos la lista dinámica por parámetro
     public byte[] generarExcelFacturas(List<FacturaExportDto> listaFacturas) {
@@ -41,6 +41,7 @@ public class FacturaExcelService {
             dataStyle.setBorderTop(BorderStyle.THIN);
             dataStyle.setBorderLeft(BorderStyle.THIN);
             dataStyle.setBorderRight(BorderStyle.THIN);
+            dataStyle.setWrapText(true);
 
             // 3. ESTILO PARA MONEDA
             CellStyle moneyStyle = workbook.createCellStyle();
@@ -50,7 +51,7 @@ public class FacturaExcelService {
 
             // --- CREACIÓN DE LA FILA CABECERA ---
             Row headerRow = sheet.createRow(0);
-            String[] columnas = {"Comprobante", "Cliente", "Total", "Estado"};
+            String[] columnas = {"Comprobante", "Cliente", "Total", "Estado", "Detalle de Productos"};
             for (int i = 0; i < columnas.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(columnas[i]);
@@ -77,11 +78,16 @@ public class FacturaExcelService {
                 Cell cell3 = row.createCell(3);
                 cell3.setCellValue(factura.estado()); // <-- Toma el estado enviado
                 cell3.setCellStyle(dataStyle);
+
+                Cell cell4 = row.createCell(4);
+                cell4.setCellValue(factura.detalleProductos()); // <-- Toma el detalle
+                cell4.setCellStyle(dataStyle);
             }
 
             for (int i = 0; i < columnas.length; i++) {
                 sheet.autoSizeColumn(i);
             }
+            sheet.setColumnWidth(4, 15000); // Hacer la columna de detalles más ancha
 
             workbook.write(out);
             return out.toByteArray();

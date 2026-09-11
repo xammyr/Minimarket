@@ -3,17 +3,17 @@
   <!-- BARRA DE NAVEGACIÓN -->
   <nav class="navbar">
     <div class="logo">
-      <span class="icon">🛍️</span>
+      <span class="icon"><i class="fa-solid fa-bag-shopping" style="color: #f39c12;"></i></span>
       <h1>MiniMarket</h1>
     </div>
     <div class="nav-actions">
       <button class="cart-btn" (click)="toggleCart()">
-        🛒 Mi Carrito 
+        <i class="fa-solid fa-cart-shopping"></i> Mi Carrito 
         @if (totalItems() > 0) {
           <span class="badge">{{ totalItems() }}</span>
         }
       </button>
-      <button class="login-btn">Iniciar Sesión</button>
+      <button class="login-btn" routerLink="/login">Iniciar Sesión</button>
     </div>
   </nav>
 
@@ -27,7 +27,7 @@
   <div class="store-toolbar">
     <!-- 1. Búsqueda -->
     <div class="search-box">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
       <input 
         type="text" 
         placeholder="Buscar productos por nombre o código..." 
@@ -65,7 +65,7 @@
           <div class="image-placeholder">
             <span class="stock-badge">Stock: {{ producto.stockActual }}</span>
             <div class="gradient-bg"></div>
-            <span class="box-icon">📦</span>
+            <span class="box-icon"><i class="fa-solid fa-box" style="color: #d2b48c;"></i></span>
           </div>
           <div class="card-content">
             <span class="category">{{ producto.categoriaNombre || 'General' }}</span>
@@ -81,7 +81,7 @@
         </article>
       } @empty {
         <div class="empty-results">
-          <h3>No encontramos lo que buscas 😕</h3>
+          <h3>No encontramos lo que buscas <i class="fa-regular fa-face-frown"></i></h3>
           <p>Intenta con otra palabra clave o cambia de categoría.</p>
         </div>
       }
@@ -91,7 +91,7 @@
     @if (hayMasPaginas() && productosFiltrados().length > 0) {
       <div class="load-more-container">
         <button class="load-more-btn" (click)="cargarMas()">
-          Cargar más productos ⬇️
+          Cargar más productos <i class="fa-solid fa-arrow-down"></i>
         </button>
       </div>
     }
@@ -102,13 +102,13 @@
     <!-- ... (El mismo footer que ya tenías) ... -->
     <div class="footer-content">
       <div class="brand">
-        <h3>🛍️ MiniMarket</h3>
+        <h3><i class="fa-solid fa-bag-shopping" style="color: #f39c12;"></i> MiniMarket</h3>
         <p>Tu tienda de confianza.</p>
       </div>
       <div class="links">
-        <a href="#">Términos y Condiciones</a>
-        <a href="#">Política de Privacidad</a>
-        <a href="#">Soporte</a>
+        <a href="javascript:void(0)" (click)="mostrarTerminos()">Términos y Condiciones</a>
+        <a href="javascript:void(0)" (click)="mostrarPrivacidad()">Política de Privacidad</a>
+        <a href="mailto:soporte@minimarket.com?subject=Soporte%20MiniMarket">Soporte</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -137,13 +137,13 @@
           <div class="qty-control"><span class="qty">x{{ item.cantidad }}</span></div>
           <div class="item-price-block">
              <span class="subtotal">S/ {{ item.subtotal.toFixed(2) }}</span>
-             <button class="remove-btn" (click)="eliminarDelCarrito(item.producto.id)">🗑️</button>
+             <button class="remove-btn" (click)="eliminarDelCarrito(item.producto.id)"><i class="fa-solid fa-trash-can"></i></button>
           </div>
         </div>
       </div>
     } @empty {
       <div class="empty-state">
-        <span class="empty-icon">🛒</span><p>Tu carrito está vacío</p>
+        <span class="empty-icon"><i class="fa-solid fa-cart-shopping" style="color: #ccc;"></i></span><p>Tu carrito está vacío</p>
         <button class="continue-btn" (click)="toggleCart()">Seguir comprando</button>
       </div>
     }

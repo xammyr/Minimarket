@@ -2,4 +2,16 @@ package com.minimarket.caja.service; import com.minimarket.caja.dto.*; import co
  @Transactional public CajaTurnoResponseDTO abrir(AbrirCajaRequest r){var c=cajas.findById(r.cajaId()).orElseThrow(()->ResourceNotFoundException.of("Caja",r.cajaId()));if(!Boolean.TRUE.equals(c.getActivo()))throw new BusinessException("La caja está inactiva");if(turnos.findByCajaIdAndEstado(c.getId(),CajaTurno.EstadoCajaTurno.ABIERTO).isPresent())throw new BusinessException("La caja ya tiene un turno abierto");var u=current.getUsuario();var t=CajaTurno.builder().caja(c).usuario(u).montoApertura(r.montoApertura()).fechaApertura(OffsetDateTime.now()).estado(CajaTurno.EstadoCajaTurno.ABIERTO).build();t=turnos.save(t);mov.save(CajaMovimiento.builder().cajaTurno(t).tipoMovimiento(CajaMovimiento.TipoMovimientoCaja.APERTURA).monto(r.montoApertura()).concepto("Apertura de caja").usuario(u).build());return d(t);}
  @Transactional(readOnly=true) public CajaTurnoResponseDTO actual(Long cajaId){return d(turnos.findByCajaIdAndEstado(cajaId,CajaTurno.EstadoCajaTurno.ABIERTO).orElseThrow(()->new ResourceNotFoundException("No hay turno abierto para la caja")));}
  @Transactional public CajaTurnoResponseDTO cerrar(Long id,CerrarCajaRequest r){var t=turnos.findById(id).orElseThrow(()->ResourceNotFoundException.of("CajaTurno",id));if(t.getEstado()!=CajaTurno.EstadoCajaTurno.ABIERTO)throw new BusinessException("El turno ya está cerrado");BigDecimal esperado=t.getMontoApertura();for(var m:mov.findByCajaTurnoId(id)){if(m.getTipoMovimiento()==CajaMovimiento.TipoMovimientoCaja.APERTURA)continue;esperado=esperado.add(m.getMonto());}t.setMontoCierreEsperado(esperado);t.setMontoCierreReal(r.montoReal());t.setDiferencia(r.montoReal().subtract(esperado));t.setFechaCierre(OffsetDateTime.now());t.setUsuarioCierre(current.getUsuario());t.setObservaciones(r.observaciones());t.setEstado(CajaTurno.EstadoCajaTurno.CERRADO);return d(t);}
- private CajaTurnoResponseDTO d(CajaTurno t){return new CajaTurnoResponseDTO(t.getId(),t.getCaja().getId(),t.getCaja().getNombre(),t.getUsuario().getId(),t.getMontoApertura(),t.getMontoCierreEsperado(),t.getMontoCierreReal(),t.getDiferencia(),t.getEstado().name(),t.getFechaApertura(),t.getFechaCierre());}}
+ private CajaTurnoResponseDTO d(CajaTurno t){
+    BigDecimal esperado = t.getMontoCierreEsperado();
+    if (esperado == null) {
+        esperado = t.getMontoApertura();
+        var movimientos = mov.findByCajaTurnoId(t.getId());
+        for (var m : movimientos) {
+            if (m.getTipoMovimiento() != CajaMovimiento.TipoMovimientoCaja.APERTURA) {
+                esperado = esperado.add(m.getMonto());
+            }
+        }
+    }
+    return new CajaTurnoResponseDTO(t.getId(),t.getCaja().getId(),t.getCaja().getNombre(),t.getUsuario().getId(),t.getMontoApertura(),esperado,t.getMontoCierreReal(),t.getDiferencia(),t.getEstado().name(),t.getFechaApertura(),t.getFechaCierre());
+}}

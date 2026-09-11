@@ -2,7 +2,7 @@
   
   <!-- SECCIÓN IZQUIERDA: Catálogo en Cuadrícula -->
   <section class="catalog-section">
-    <h2>📦 Catálogo de Productos</h2>
+    <h2><i class="fa-solid fa-box-open" style="color: #d2b48c;"></i> Catálogo de Productos</h2>
     
     <div class="product-grid">
       @for (producto of productos(); track producto.id) {
@@ -23,7 +23,7 @@
 
  <!-- SECCIÓN DERECHA: Ticket de Venta / Carrito -->
   <aside class="cart-section">
-    <h2>🛒 Ticket de Venta</h2>
+    <h2><i class="fa-solid fa-cart-shopping"></i> Ticket de Venta</h2>
     
     <div class="cart-items">
       @for (item of carrito(); track item.producto.id) {
@@ -32,7 +32,10 @@
             <span class="item-name">{{ item.producto.nombre }}</span>
             <span class="item-qty">Cantidad: {{ item.cantidad }}</span>
           </div>
-          <strong class="item-price">S/ {{ item.subtotal.toFixed(2) }}</strong>
+          <div class="item-actions">
+            <strong class="item-price">S/ {{ item.subtotal.toFixed(2) }}</strong>
+            <button class="remove-btn" (click)="eliminarDelCarrito(item.producto.id)" title="Eliminar del ticket"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
         </div>
       } @empty {
         <p class="empty-cart">Aún no hay productos en el ticket</p>

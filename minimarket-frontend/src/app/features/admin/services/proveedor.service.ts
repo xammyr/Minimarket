@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class ProveedorService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/proveedores';
+  private apiUrl = '/api/proveedores';
 
   listar(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}`);
