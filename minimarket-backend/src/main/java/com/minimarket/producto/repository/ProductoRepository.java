@@ -7,8 +7,8 @@ import java.util.Optional;
 public interface ProductoRepository extends JpaRepository<Producto, Long> {
     Optional<Producto> findByCodigoBarrasAndActivoTrue(String codigoBarras);
     Optional<Producto> findByCodigoInterno(String codigoInterno);
-    Page<Producto> findByActivoTrue(Pageable pageable);
-    Page<Producto> findByNombreContainingIgnoreCaseAndActivoTrue(String nombre, Pageable pageable);
+    Page<Producto> findByActivoTrueOrderByIdAsc(Pageable pageable);
+    Page<Producto> findByNombreContainingIgnoreCaseAndActivoTrueOrderByIdAsc(String nombre, Pageable pageable);
     Page<Producto> findByCodigoInternoContainingIgnoreCaseAndActivoTrue(String codigo, Pageable pageable);
     boolean existsByCodigoInternoIgnoreCase(String codigoInterno);
     boolean existsByCodigoBarrasIgnoreCase(String codigoBarras);

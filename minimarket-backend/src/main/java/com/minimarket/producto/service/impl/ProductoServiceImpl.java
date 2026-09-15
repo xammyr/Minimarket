@@ -36,8 +36,8 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public Page<ProductoResponseDTO> listar(String busqueda, Pageable pageable) {
         Page<Producto> pagina = StringUtils.hasText(busqueda)
-                ? productoRepository.findByNombreContainingIgnoreCaseAndActivoTrue(busqueda, pageable)
-                : productoRepository.findByActivoTrue(pageable);
+                ? productoRepository.findByNombreContainingIgnoreCaseAndActivoTrueOrderByIdAsc(busqueda, pageable)
+                : productoRepository.findByActivoTrueOrderByIdAsc(pageable);
         return pagina.map(this::toResponse);
     }
 

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -15,6 +15,7 @@ import { Producto } from '../../../productos/models/producto.interface';
 export class InventarioAdmin implements OnInit {
   private productoService = inject(ProductoService);
   private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef);
   
   productos = signal<Producto[]>([]);
   cargando = signal<boolean>(true);
@@ -146,7 +147,12 @@ export class InventarioAdmin implements OnInit {
     this.productoService.generarCodigo().subscribe({
       next: (res) => {
         if (res.success && res.data) {
-          this.formulario.codigoInterno = res.data;
+          // Reasignar el objeto completo fuerza a Angular a detectar el cambio inmediatamente
+          this.formulario = {
+            ...this.formulario,
+            codigoInterno: res.data
+          };
+          this.cdr.detectChanges();
         }
       }
     });

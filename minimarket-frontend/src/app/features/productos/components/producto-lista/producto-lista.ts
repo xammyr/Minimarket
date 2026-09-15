@@ -10,9 +10,12 @@ export interface DetalleCarrito {
   subtotal: number;
 }
 
+import { DatePipe } from '@angular/common';
+
 @Component({
   selector: 'app-producto-lista',
   standalone: true,
+  imports: [DatePipe],
   templateUrl: './producto-lista.html',
   styleUrl: './producto-lista.scss'
 })
