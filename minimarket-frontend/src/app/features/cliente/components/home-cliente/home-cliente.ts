@@ -126,8 +126,14 @@ export class HomeCliente implements OnInit {
      this.carrito.update(items => items.filter(item => item.producto.id !== productoId));
   }
 
-  procederPago() {
-    alert("¡Simulación de pago exitosa!\nGracias por tu compra.");
+  async procederPago() {
+    const Swal = (await import('sweetalert2')).default;
+    Swal.fire({
+      icon: 'success',
+      title: '¡Simulación de pago exitosa!',
+      text: 'Gracias por tu compra.',
+      confirmButtonText: 'Continuar'
+    });
     this.carrito.set([]);
     this.isCartOpen.set(false);
   }

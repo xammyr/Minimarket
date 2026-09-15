@@ -56,8 +56,8 @@
 
   <!-- Modal -->
   @if (mostrarModal()) {
-    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-      <div style="background: white; padding: 30px; border-radius: 8px; width: 600px; max-width: 90%; max-height: 90vh; overflow-y: auto;">
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+      <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 600px; max-width: 90%; max-height: 90vh; overflow-y: auto;">
         <h2 style="margin-top: 0;">{{ modoEdicion() ? 'Editar Producto' : 'Nuevo Producto' }}</h2>
         
         <form (ngSubmit)="guardarProducto()" #form="ngForm" style="display: flex; flex-direction: column; gap: 15px;">
@@ -162,7 +162,7 @@
 
   <!-- Modal Pequeño para Nueva Categoría/Marca/Unidad -->
   @if (promptActivo()) {
-    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000;">
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 2000;">
       <div style="background: white; padding: 25px; border-radius: 8px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
         <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;">
           <i class="fa-solid fa-plus-circle" style="color: #3498db;"></i>

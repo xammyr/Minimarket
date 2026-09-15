@@ -5,6 +5,7 @@ import { CompraService, CompraResponseDTO, CompraRequestDTO, CompraDetalleReques
 import { ProveedorService } from '../../../admin/services/proveedor.service';
 import { ProductoService } from '../../../productos/services/producto';
 import { Producto } from '../../../productos/models/producto.interface';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-compras',
@@ -120,7 +121,7 @@ export class Compras implements OnInit {
 
   agregarProducto() {
     if (!this.productoTemporalId || this.cantidadTemporal <= 0 || this.precioTemporal <= 0) {
-      alert("Seleccione un producto y especifique cantidad y precio válidos.");
+      Swal.fire('Atención', 'Seleccione un producto y especifique cantidad y precio válidos.', 'warning');
       return;
     }
     this.nuevaCompraForm.detalles.push({
@@ -149,7 +150,7 @@ export class Compras implements OnInit {
 
   guardarCompra() {
     if (!this.nuevaCompraForm.comprobante || !this.nuevaCompraForm.proveedorId || this.nuevaCompraForm.detalles.length === 0) {
-      alert('Por favor, completa todos los campos correctamente y agrega al menos un producto.');
+      Swal.fire('Atención', 'Por favor, completa todos los campos correctamente y agrega al menos un producto.', 'warning');
       return;
     }
 
@@ -161,29 +162,43 @@ export class Compras implements OnInit {
 
     this.compraService.registrarCompra(request).subscribe({
       next: (res) => {
-        alert("Compra registrada exitosamente");
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Compra registrada exitosamente', showConfirmButton: false, timer: 3000 });
         this.cargarDatos(); // reload
         this.cerrarNuevaCompra();
       },
       error: (err) => {
         console.error(err);
-        alert("Error al registrar la compra: " + (err.error?.message || err.message));
+        Swal.fire('Error', 'Error al registrar la compra: ' + (err.error?.message || err.message), 'error');
       }
     });
   }
 
   anularCompra(id: number) {
-    if(confirm("¿Estás seguro de anular esta compra? El inventario se revertirá.")) {
-      const motivo = prompt("Motivo de la anulación:");
-      if(motivo) {
-        this.compraService.anular(id, motivo).subscribe({
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Se anulará esta compra y el inventario se revertirá.',
+      icon: 'warning',
+      input: 'text',
+      inputPlaceholder: 'Motivo de la anulación',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, anular',
+      cancelButtonText: 'Cancelar',
+      preConfirm: (motivo) => {
+        if (!motivo) {
+          Swal.showValidationMessage('Debes ingresar un motivo');
+        }
+        return motivo;
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.compraService.anular(id, result.value).subscribe({
           next: () => {
-             alert("Compra anulada exitosamente");
+             Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Compra anulada', showConfirmButton: false, timer: 3000 });
              this.cargarDatos();
           },
-          error: (err) => alert("Error: " + (err.error?.message || err.message))
+          error: (err) => Swal.fire('Error', err.error?.message || err.message, 'error')
         });
       }
-    }
+    });
   }
 }

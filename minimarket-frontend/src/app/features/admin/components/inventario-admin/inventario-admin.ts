@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ProductoService } from '../../../productos/services/producto';
 import { Producto } from '../../../productos/models/producto.interface';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-inventario-admin',
@@ -108,7 +109,7 @@ export class InventarioAdmin implements OnInit {
           this.formulario.categoriaId = res.data.id;
           this.cerrarPrompt();
         },
-        error: (err) => alert('Error: ' + err.error?.message)
+        error: (err) => Swal.fire('Error', err.error?.message || 'Error al guardar', 'error')
       });
     } else if (this.promptTipo() === 'marca') {
       this.http.post<any>('/api/marcas', { nombre: this.promptDatos.nombre }).subscribe({
@@ -117,7 +118,7 @@ export class InventarioAdmin implements OnInit {
           this.formulario.marcaId = res.data.id;
           this.cerrarPrompt();
         },
-        error: (err) => alert('Error: ' + err.error?.message)
+        error: (err) => Swal.fire('Error', err.error?.message || 'Error al guardar', 'error')
       });
     } else if (this.promptTipo() === 'unidad') {
       if (!this.promptDatos.abreviatura) return;
@@ -127,7 +128,7 @@ export class InventarioAdmin implements OnInit {
           this.formulario.unidadMedidaId = res.data.id;
           this.cerrarPrompt();
         },
-        error: (err) => alert('Error: ' + err.error?.message)
+        error: (err) => Swal.fire('Error', err.error?.message || 'Error al guardar', 'error')
       });
     }
   }
@@ -188,16 +189,18 @@ export class InventarioAdmin implements OnInit {
         next: () => {
           this.cerrarModal();
           this.cargarProductos();
+          Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Producto actualizado', showConfirmButton: false, timer: 3000 });
         },
-        error: (err) => alert('Error al actualizar: ' + err.error?.message)
+        error: (err) => Swal.fire('Error', err.error?.message || 'Error al actualizar', 'error')
       });
     } else {
       this.productoService.crearProducto(this.formulario).subscribe({
         next: () => {
           this.cerrarModal();
           this.cargarProductos();
+          Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Producto creado', showConfirmButton: false, timer: 3000 });
         },
-        error: (err) => alert('Error al crear: ' + err.error?.message)
+        error: (err) => Swal.fire('Error', err.error?.message || 'Error al crear', 'error')
       });
     }
   }

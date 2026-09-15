@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FacturaService } from '../../services/factura';
 import { HttpClient } from '@angular/common/http';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-facturas',
@@ -84,7 +85,10 @@ export class Facturas implements OnInit {
       ? this.facturasFiltradas().filter(f => this.seleccionados().includes(f.id))
       : this.facturasFiltradas();
 
-    if (datosAExportar.length === 0) return alert('No hay comprobantes para exportar.');
+    if (datosAExportar.length === 0) {
+      Swal.fire('Atención', 'No hay comprobantes para exportar.', 'info');
+      return;
+    }
 
     const dtos = datosAExportar.map(v => {
       // Convertir la lista de detalles en un string legible
