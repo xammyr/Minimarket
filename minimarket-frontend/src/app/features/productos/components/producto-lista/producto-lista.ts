@@ -169,7 +169,7 @@ export class ProductoLista implements OnInit {
               toast: true,
               position: 'top-end',
               icon: 'success',
-              title: `Venta ${res.data.numeroComprobante} registrada`,
+              title: `Venta ${res.data.numeroVenta} registrada`,
               showConfirmButton: false,
               timer: 3000,
               timerProgressBar: true

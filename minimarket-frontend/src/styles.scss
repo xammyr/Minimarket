@@ -4,4 +4,56 @@ html, body {
   padding: 0;
   height: 100%;
   width: 100%;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  @page {
+    margin: 0;
+  }
+
+  .printable-voucher, .printable-voucher * {
+    visibility: visible;
+  }
+
+  .printable-voucher {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    color: #000;
+  }
+
+  .voucher-header {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .voucher-header h2 { margin: 0 0 5px 0; font-size: 16px; font-weight: bold; }
+  .voucher-header p { margin: 2px 0; }
+
+  .voucher-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
+  .voucher-table th, .voucher-table td {
+    text-align: left;
+    padding: 3px 0;
+  }
+  .voucher-table th:last-child, .voucher-table td:last-child {
+    text-align: right;
+  }
+
+  .voucher-footer {
+    text-align: center;
+  }
+  .voucher-footer h3 { margin: 5px 0; font-size: 14px; text-align: right; }
+  .voucher-footer p { margin: 2px 0; }
 }
