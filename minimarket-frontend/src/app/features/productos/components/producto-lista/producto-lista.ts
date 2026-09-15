@@ -22,6 +22,7 @@ export class ProductoLista implements OnInit {
   
   productos = signal<Producto[]>([]);
   carrito = signal<DetalleCarrito[]>([]); 
+  ultimoTicket = signal<any>(null); // Para almacenar los datos de la última venta e imprimirlos
   
   // Variables para el escáner de código de barras
   private barcodeBuffer = '';
@@ -170,8 +171,16 @@ export class ProductoLista implements OnInit {
               timer: 3000,
               timerProgressBar: true
             });
-            this.carrito.set([]); // Limpiar carrito
-            this.cargarProductos(); // Refrescar stock
+            this.ultimoTicket.set(res.data);
+            
+            // Limpiar carrito y refrescar catálogo
+            this.carrito.set([]); 
+            this.cargarProductos();
+            
+            // Disparar la impresión después de un pequeño delay para que Angular renderice el DOM oculto
+            setTimeout(() => {
+              window.print();
+            }, 500);
           },
           error: (err) => {
             console.error("Error al registrar venta", err);

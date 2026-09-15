@@ -14,4 +14,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     boolean existsByCodigoBarrasIgnoreCase(String codigoBarras);
     boolean existsByCodigoInternoIgnoreCaseAndIdNot(String codigoInterno, Long id);
     boolean existsByCodigoBarrasIgnoreCaseAndIdNot(String codigoBarras, Long id);
+
+    @org.springframework.data.jpa.repository.Query("SELECT MAX(p.id) FROM Producto p")
+    Long findMaxId();
 }

@@ -142,6 +142,13 @@ public class ProductoServiceImpl implements ProductoService {
         producto.setActivo(false);
     }
 
+    @Override
+    public String generarSiguienteCodigo() {
+        Long maxId = productoRepository.findMaxId();
+        long nextId = (maxId != null ? maxId : 0) + 1;
+        return String.format("PRD-%06d", nextId);
+    }
+
     private Producto buscarOFallar(Long id) {
         return productoRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Producto", id));

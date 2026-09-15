@@ -21,4 +21,8 @@ export class ProductoService {
   actualizarProducto(id: number, data: any): Observable<ApiResponse<Producto>> {
     return this.http.put<ApiResponse<Producto>>(`${this.apiUrl}/${id}`, data);
   }
+
+  generarCodigo(): Observable<ApiResponse<string>> {
+    return this.http.get<ApiResponse<string>>(`${this.apiUrl}/generar-codigo`);
+  }
 }

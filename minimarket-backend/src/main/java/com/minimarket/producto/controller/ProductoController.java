@@ -72,4 +72,10 @@ public class ProductoController {
         productoService.desactivar(id);
         return ApiResponse.ok(null, "Producto desactivado");
     }
+
+    @GetMapping("/generar-codigo")
+    @PreAuthorize("hasAuthority('PRODUCTO_CREAR')")
+    public ApiResponse<String> generarCodigo() {
+        return ApiResponse.ok(productoService.generarSiguienteCodigo());
+    }
 }

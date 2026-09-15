@@ -131,39 +131,25 @@ export class InventarioAdmin implements OnInit {
     }
   }
 
-  generarSiguienteCodigo(): string {
-    const prods = this.productos();
-    if (!prods || prods.length === 0) return 'PRD-0001';
-
-    let maxNum = 0;
-    const prefix = 'PRD-';
-    
-    for (const p of prods) {
-      if (p.codigoInterno && p.codigoInterno.startsWith(prefix)) {
-        const numPart = p.codigoInterno.substring(prefix.length);
-        const parsed = parseInt(numPart, 10);
-        if (!isNaN(parsed) && parsed > maxNum) {
-          maxNum = parsed;
-        }
-      }
-    }
-    
-    const nextNum = maxNum + 1;
-    // Format to 4 digits: PRD-0001
-    return prefix + nextNum.toString().padStart(4, '0');
-  }
-
   abrirModalNuevo() {
     this.modoEdicion.set(false);
     this.productoEditandoId.set(null);
     this.formulario = {
-      codigoInterno: this.generarSiguienteCodigo(), 
+      codigoInterno: 'Cargando...', 
       codigoBarras: '', nombre: '', descripcion: '',
       categoriaId: null, marcaId: null, unidadMedidaId: null,
       precioCompra: 0, precioVenta: 0, stockMinimo: 5,
       controlaStock: true, afectoIgv: true
     };
     this.mostrarModal.set(true);
+
+    this.productoService.generarCodigo().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.formulario.codigoInterno = res.data;
+        }
+      }
+    });
   }
 
   abrirModalEditar(p: any) {

@@ -18,4 +18,6 @@ public interface ProductoService {
     ProductoResponseDTO actualizar(Long id, ProductoRequestDTO request);
 
     void desactivar(Long id);
+
+    String generarSiguienteCodigo();
 }
