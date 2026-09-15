@@ -19,6 +19,7 @@ export class ResumenAdmin implements OnInit {
   montoTotalVentas: number = 0;
   totalProductos: number = 0;
   ventasRecientes: any[] = [];
+  stockCritico: any[] = [];
   cargando: boolean = true;
   
   // Datos para el gráfico
@@ -59,7 +60,14 @@ export class ResumenAdmin implements OnInit {
       })
     );
 
-    forkJoin([ventas$, productos$]).subscribe(([resVentas, resProductos]) => {
+    const stockCritico$ = this.http.get<any>('/api/productos/stock-critico').pipe(
+      catchError(err => {
+        console.error("Error stock crítico", err);
+        return of(null);
+      })
+    );
+
+    forkJoin([ventas$, productos$, stockCritico$]).subscribe(([resVentas, resProductos, resStock]) => {
       if (resVentas && resVentas.data && resVentas.data.content) {
         const ventas = resVentas.data.content;
         this.ventasRecientes = ventas.slice(0, 5);
@@ -74,6 +82,10 @@ export class ResumenAdmin implements OnInit {
 
       if (resProductos && resProductos.data) {
         this.totalProductos = resProductos.data.totalElements || 0;
+      }
+
+      if (resStock && resStock.data) {
+        this.stockCritico = resStock.data;
       }
 
       this.cargando = false;

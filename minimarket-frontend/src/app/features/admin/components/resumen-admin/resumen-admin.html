@@ -15,6 +15,21 @@
 
   <div *ngIf="!cargando" class="dashboard-content">
     
+    <!-- ALERTA DE STOCK CRÍTICO -->
+    <div *ngIf="stockCritico.length > 0" style="background-color: #fdedec; border-left: 4px solid #e74c3c; padding: 15px 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+      <h3 style="color: #c0392b; margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-triangle-exclamation"></i> Alerta de Stock Crítico
+      </h3>
+      <p style="margin: 0 0 10px 0; color: #e74c3c; font-size: 0.95rem;">
+        Los siguientes productos están por debajo del nivel mínimo establecido y requieren reabastecimiento:
+      </p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <span *ngFor="let p of stockCritico" style="background: white; border: 1px solid #fab1a0; color: #d63031; padding: 5px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+          {{ p.nombre }} (Quedan: {{ p.stockActual }})
+        </span>
+      </div>
+    </div>
+    
     <!-- Tarjetas de Resumen -->
     <div class="summary-cards">
       <div class="card stat-card">

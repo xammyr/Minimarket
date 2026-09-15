@@ -20,4 +20,6 @@ public interface ProductoService {
     void desactivar(Long id);
 
     String generarSiguienteCodigo();
+
+    java.util.List<ProductoResponseDTO> obtenerStockCritico();
 }

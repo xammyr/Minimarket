@@ -82,7 +82,7 @@
         @for (item of ultimoTicket()?.detalles; track item.productoId) {
           <tr>
             <td>{{ item.cantidad }}</td>
-            <td>{{ item.nombreProducto }}</td>
+            <td>{{ item.producto }}</td>
             <td>S/ {{ (item.precioUnitario * item.cantidad).toFixed(2) }}</td>
           </tr>
         }

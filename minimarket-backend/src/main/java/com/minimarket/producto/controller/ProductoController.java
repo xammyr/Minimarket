@@ -78,4 +78,9 @@ public class ProductoController {
     public ApiResponse<String> generarCodigo() {
         return ApiResponse.ok(productoService.generarSiguienteCodigo());
     }
+
+    @GetMapping("/stock-critico")
+    public ApiResponse<java.util.List<ProductoResponseDTO>> obtenerStockCritico() {
+        return ApiResponse.ok(productoService.obtenerStockCritico());
+    }
 }

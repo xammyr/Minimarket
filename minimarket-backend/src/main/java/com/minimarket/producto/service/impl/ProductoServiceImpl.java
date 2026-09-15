@@ -149,6 +149,13 @@ public class ProductoServiceImpl implements ProductoService {
         return String.format("PRD-%06d", nextId);
     }
 
+    @Override
+    public java.util.List<ProductoResponseDTO> obtenerStockCritico() {
+        return productoRepository.findStockCritico().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     private Producto buscarOFallar(Long id) {
         return productoRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Producto", id));

@@ -15,6 +15,9 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     boolean existsByCodigoInternoIgnoreCaseAndIdNot(String codigoInterno, Long id);
     boolean existsByCodigoBarrasIgnoreCaseAndIdNot(String codigoBarras, Long id);
 
+    @org.springframework.data.jpa.repository.Query("SELECT p FROM Producto p WHERE p.activo = true AND p.controlaStock = true AND p.stockActual <= p.stockMinimo ORDER BY p.stockActual ASC")
+    java.util.List<Producto> findStockCritico();
+
     @org.springframework.data.jpa.repository.Query("SELECT MAX(p.id) FROM Producto p")
     Long findMaxId();
 }
