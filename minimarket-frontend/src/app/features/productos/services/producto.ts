@@ -10,8 +10,8 @@ export class ProductoService {
   private http = inject(HttpClient);
   private apiUrl = '/api/productos';
 
-  obtenerProductos(): Observable<ApiResponse<Producto[]>> {
-    return this.http.get<ApiResponse<Producto[]>>(this.apiUrl);
+  obtenerProductos(page: number = 0, size: number = 10): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}?page=${page}&size=${size}`);
   }
 
   crearProducto(data: any): Observable<ApiResponse<Producto>> {

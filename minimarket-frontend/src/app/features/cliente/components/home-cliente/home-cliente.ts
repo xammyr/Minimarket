@@ -74,9 +74,7 @@ export class HomeCliente implements OnInit {
 
   // Ahora recibe la página que queremos buscar
   cargarProductos(page: number) {
-    // NOTA: Si tu productoService.obtenerProductos() aún no acepta el parámetro 'page', 
-    // puedes pasarlo temporalmente vacío, pero la lógica ya está preparada.
-    this.productoService.obtenerProductos().subscribe({
+    this.productoService.obtenerProductos(page, 10).subscribe({
       next: (response: any) => {
         const nuevosProductos = response.data.content;
         
