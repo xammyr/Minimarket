@@ -37,13 +37,21 @@ export class ProductoLista implements OnInit {
   private lastKeyTime = 0;
 
   productosFiltrados = computed(() => {
-    const term = this.terminoBusqueda().toLowerCase().trim();
-    if (!term) return this.productos();
-    return this.productos().filter(p => 
-      p.nombre.toLowerCase().includes(term) || 
-      p.codigoInterno.toLowerCase().includes(term) ||
-      (p.codigoBarras && p.codigoBarras.toLowerCase().includes(term))
-    );
+    const rawTerm = this.terminoBusqueda().toLowerCase();
+    const term = rawTerm.replace(/[-\s]/g, ''); // Quita guiones y espacios
+    
+    if (!term && !rawTerm) return this.productos();
+    
+    return this.productos().filter(p => {
+      const nombreLimpio = p.nombre.toLowerCase().replace(/[-\s]/g, '');
+      const codigoLimpio = p.codigoInterno.toLowerCase().replace(/[-\s]/g, '');
+      const barrasLimpio = p.codigoBarras ? p.codigoBarras.toLowerCase().replace(/[-\s]/g, '') : '';
+      
+      return nombreLimpio.includes(term) || 
+             codigoLimpio.includes(term) ||
+             barrasLimpio.includes(term) ||
+             p.nombre.toLowerCase().includes(rawTerm);
+    });
   });
 
   total = computed(() => {

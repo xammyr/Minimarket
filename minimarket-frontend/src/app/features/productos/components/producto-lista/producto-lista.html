@@ -51,24 +51,22 @@
       }
     </div>
     
-    @if (carrito().length > 0) {
-      <div class="payment-methods">
-        <p class="pay-title">Método de pago:</p>
-        <div class="pay-options">
-          <button [class.active]="metodoPagoSeleccionado() === 1" (click)="seleccionarMetodo(1)">
-            <i class="fa-solid fa-money-bill-1-wave"></i> Efectivo
-          </button>
-          <button [class.active]="metodoPagoSeleccionado() === 2" (click)="seleccionarMetodo(2)">
-            <i class="fa-solid fa-mobile-screen"></i> Yape/Plin
-          </button>
-        </div>
+    <div class="payment-methods">
+      <p class="pay-title">Método de pago:</p>
+      <div class="pay-options">
+        <button [class.active]="metodoPagoSeleccionado() === 1" (click)="seleccionarMetodo(1)">
+          <i class="fa-solid fa-money-bill-1-wave"></i> Efectivo
+        </button>
+        <button [class.active]="metodoPagoSeleccionado() === 2" (click)="seleccionarMetodo(2)">
+          <i class="fa-solid fa-mobile-screen"></i> Yape/Plin
+        </button>
       </div>
+    </div>
 
-      <div class="cart-total">
-        <span>Total a pagar:</span>
-        <strong>S/ {{ total().toFixed(2) }}</strong>
-      </div>
-    }
+    <div class="cart-total">
+      <span>Total a pagar:</span>
+      <strong>S/ {{ total().toFixed(2) }}</strong>
+    </div>
     
     <button class="btn-checkout" [disabled]="carrito().length === 0" (click)="cobrar()">
       Cobrar ({{ totalItems() }} items)

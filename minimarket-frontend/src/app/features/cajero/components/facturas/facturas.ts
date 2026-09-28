@@ -97,11 +97,14 @@ export class Facturas implements OnInit {
         detallesStr = v.detalles.map((d: any) => `${d.cantidad}x ${d.producto}`).join('\n');
       }
 
+      const metodo = v.pagos && v.pagos.length > 0 ? v.pagos[0].metodoPago : 'EFECTIVO';
+
       return {
         id: v.numeroVenta,
         cliente: 'Cliente General', // Ajusta si tienes cliente
         total: v.total,
         estado: v.estado,
+        metodoPago: metodo, // Nuevo campo
         detalleProductos: detallesStr // Nueva columna mapeada
       };
     });
