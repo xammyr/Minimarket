@@ -24,6 +24,7 @@ export class HomeCliente implements OnInit {
   productos = signal<Producto[]>([]);
   isCartOpen = signal<boolean>(false);
   carrito = signal<DetalleCarrito[]>([]); 
+  cargando = signal<boolean>(true);
 
   // Estados de Filtros y Búsqueda
   categorias = ['Todos', 'Abarrotes', 'Bebidas', 'Limpieza', 'Snacks'];
@@ -75,6 +76,7 @@ export class HomeCliente implements OnInit {
 
   // Ahora recibe la página que queremos buscar
   cargarProductos(page: number) {
+    this.cargando.set(true);
     this.productoService.obtenerProductos(page, 10).subscribe({
       next: (response: any) => {
         const nuevosProductos = response.data.content;
@@ -89,8 +91,12 @@ export class HomeCliente implements OnInit {
         // Verificamos si es la última página según Spring Boot
         this.hayMasPaginas.set(!response.data.last);
         this.paginaActual.set(page);
+        this.cargando.set(false);
       },
-      error: (err) => console.error('Error al cargar la tienda:', err)
+      error: (err) => {
+        console.error('Error al cargar la tienda:', err);
+        this.cargando.set(false);
+      }
     });
   }
 

@@ -12,17 +12,24 @@
     </div>
     
     <div class="product-grid">
-      @for (producto of productosFiltrados(); track producto.id) {
-        <div class="product-card" (click)="agregarAlCarrito(producto)">
-          <div class="card-header">
-            <span class="stock-badge">Stock: {{ producto.stockActual }}</span>
-          </div>
-          <h3 class="product-name">{{ producto.nombre }}</h3>
-          <p class="product-code">{{ producto.codigoInterno }}</p>
-          <p class="product-price">S/ {{ producto.precioVenta.toFixed(2) }}</p>
+      @if (cargando()) {
+        <div class="empty-results" style="padding: 60px 0; text-align: center; width: 100%; grid-column: 1 / -1;">
+          <i class="fa-solid fa-spinner fa-spin fa-3x" style="color: #3498db; margin-bottom: 20px;"></i>
+          <h3 style="color: #2c3e50;">Cargando catálogo...</h3>
         </div>
-      } @empty {
-        <p class="loading-text">No se encontraron productos.</p>
+      } @else {
+        @for (producto of productosFiltrados(); track producto.id) {
+          <div class="product-card" (click)="agregarAlCarrito(producto)">
+            <div class="card-header">
+              <span class="stock-badge">Stock: {{ producto.stockActual }}</span>
+            </div>
+            <h3 class="product-name">{{ producto.nombre }}</h3>
+            <p class="product-code">{{ producto.codigoInterno }}</p>
+            <p class="product-price">S/ {{ producto.precioVenta.toFixed(2) }}</p>
+          </div>
+        } @empty {
+          <p class="loading-text" style="grid-column: 1 / -1; text-align: center;">No se encontraron productos.</p>
+        }
       }
     </div>
   </section>

@@ -120,12 +120,19 @@ export class ProductoLista implements OnInit {
     }
   }
 
+  cargando = signal<boolean>(true);
+
   cargarProductos() {
+    this.cargando.set(true);
     this.productoService.obtenerProductos().subscribe({
       next: (response: any) => {
         this.productos.set(response.data.content);
+        this.cargando.set(false);
       },
-      error: (err) => console.error('Error al cargar el catálogo:', err)
+      error: (err) => {
+        console.error('Error al cargar el catálogo:', err);
+        this.cargando.set(false);
+      }
     });
   }
 
