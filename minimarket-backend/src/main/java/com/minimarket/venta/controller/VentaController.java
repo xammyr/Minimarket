@@ -3,4 +3,5 @@ import com.minimarket.common.ApiResponse; import com.minimarket.venta.dto.*; imp
     public ApiResponse<VentaResponseDTO> crear(@Valid@RequestBody CrearVentaRequest r){return ApiResponse.ok(s.crear(r),"Venta registrada");}@GetMapping @PreAuthorize("hasAuthority('PRODUCTO_VER')")
     public ApiResponse<Page<VentaResponseDTO>> listar(Pageable p){return ApiResponse.ok(s.listar(p));}@GetMapping("/{id}")@PreAuthorize("hasAuthority('PRODUCTO_VER')")
     public ApiResponse<VentaResponseDTO> one(@PathVariable Long id){return ApiResponse.ok(s.obtener(id));}@PostMapping("/{id}/anular")@PreAuthorize("hasAuthority('VENTA_ANULAR')")
-    public ApiResponse<Void> anular(@PathVariable Long id,@RequestParam String motivo){s.anular(id,motivo);return ApiResponse.ok(null,"Venta anulada");}}
+    public ApiResponse<Void> anular(@PathVariable Long id,@RequestParam String motivo){s.anular(id,motivo);return ApiResponse.ok(null,"Venta anulada");}@PostMapping("/{id}/aprobar")@PreAuthorize("hasAuthority('VENTA_CREAR')")
+    public ApiResponse<Void> aprobar(@PathVariable Long id){s.aprobar(id);return ApiResponse.ok(null,"Venta aprobada");}}
