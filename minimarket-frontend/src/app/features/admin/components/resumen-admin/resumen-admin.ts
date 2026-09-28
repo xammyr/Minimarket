@@ -151,29 +151,38 @@ export class ResumenAdmin implements OnInit {
     const fecha = this.fechasOrdenadas[index];
     const ventasDelDia = this.ventasAgrupadasPorDia[fecha] || [];
     
-    // Sumar todos los productos vendidos ese día
-    const productosVendidos: { [key: string]: { cant: number, total: number } } = {};
+    // Sumar todos los productos vendidos ese día agrupados por producto y método de pago
+    const productosVendidos: { [key: string]: { prod: string, metodo: string, cant: number, total: number } } = {};
     
     ventasDelDia.forEach(venta => {
+      const metodoBruto = venta.pagos && venta.pagos.length > 0 ? venta.pagos[0].metodoPago?.toUpperCase() : 'EFECTIVO';
+      const metodoLimpio = (metodoBruto === 'YAPE' || metodoBruto === 'PLIN') ? 'Yape/Plin' : 'Efectivo';
+
       if (venta.detalles) {
         venta.detalles.forEach((det: any) => {
-          if (!productosVendidos[det.producto]) {
-            productosVendidos[det.producto] = { cant: 0, total: 0 };
+          const clave = `${det.producto}_${metodoLimpio}`;
+          if (!productosVendidos[clave]) {
+            productosVendidos[clave] = { prod: det.producto, metodo: metodoLimpio, cant: 0, total: 0 };
           }
-          productosVendidos[det.producto].cant += det.cantidad;
-          productosVendidos[det.producto].total += det.total;
+          productosVendidos[clave].cant += det.cantidad;
+          productosVendidos[clave].total += det.total;
         });
       }
     });
     
     let htmlContent = '<div style="text-align: left; max-height: 300px; overflow-y: auto;">';
     htmlContent += '<table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">';
-    htmlContent += '<tr style="border-bottom: 1px solid #eee;"><th>Producto</th><th>Cant.</th><th>Total</th></tr>';
+    htmlContent += '<tr style="border-bottom: 1px solid #eee;"><th>Producto</th><th>Tipo Pago</th><th>Cant.</th><th>Total</th></tr>';
     
-    Object.keys(productosVendidos).forEach(prod => {
-      const d = productosVendidos[prod];
+    Object.keys(productosVendidos).forEach(clave => {
+      const d = productosVendidos[clave];
       htmlContent += `<tr style="border-bottom: 1px solid #f9f9f9;">
-        <td style="padding: 5px 0;">${prod}</td>
+        <td style="padding: 5px 0;">${d.prod}</td>
+        <td style="padding: 5px 0;">
+          <span style="font-size: 0.8rem; padding: 2px 6px; border-radius: 4px; background: ${d.metodo === 'Efectivo' ? '#e8f8f5' : '#f4e8ff'}; color: ${d.metodo === 'Efectivo' ? '#27ae60' : '#8e44ad'};">
+            ${d.metodo}
+          </span>
+        </td>
         <td style="text-align: center;">${d.cant}</td>
         <td style="text-align: right;">S/ ${d.total.toFixed(2)}</td>
       </tr>`;
