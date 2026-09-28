@@ -140,8 +140,6 @@ export class HomeCliente implements OnInit {
   async procederPago() {
     if (this.carrito().length === 0) return;
     const Swal = (await import('sweetalert2')).default;
-    
-    let referenciaPago: string | null = null;
 
     // Si el pago es con Yape/Plin, mostrar el QR primero
     if (this.metodoPagoSeleccionado() === 2) {
@@ -152,30 +150,19 @@ export class HomeCliente implements OnInit {
           <img src="/mi-qr-yape-prueba.jpeg"
                alt="QR Yape" 
                style="width: 200px; height: 200px; margin: 0 auto; display: block; border: 3px solid #8e44ad; border-radius: 10px; padding: 5px; margin-bottom: 15px;">
-          <input type="text" id="operacion-yape" class="swal2-input" placeholder="Nro. de Operación (Obligatorio)" style="width: 80%; text-align: center;">
-          <p style="font-size: 0.85rem; color: #7f8c8d; margin-top: 15px;">Ingresa el número de operación de tu voucher para verificar el pago.</p>
+          <p style="font-size: 0.85rem; color: #7f8c8d; margin-top: 15px;">Muestra la captura de pantalla al cajero y luego haz clic en Confirmar Pago.</p>
         `,
         showCancelButton: true,
         confirmButtonText: 'Confirmar Pago',
         cancelButtonText: 'Cancelar',
         confirmButtonColor: '#8e44ad',
         cancelButtonColor: '#95a5a6',
-        allowOutsideClick: false,
-        preConfirm: () => {
-          const operacion = (document.getElementById('operacion-yape') as HTMLInputElement).value;
-          if (!operacion || operacion.trim().length < 4) {
-            Swal.showValidationMessage('Por favor ingresa un número de operación válido');
-            return false;
-          }
-          return operacion;
-        }
+        allowOutsideClick: false
       });
 
       if (!confirmResult.isConfirmed) {
         return; // El usuario canceló la compra
       }
-      
-      referenciaPago = confirmResult.value; // Guardamos el número de operación
     }
 
     // Obtener turno actual para registrar la venta real
@@ -196,8 +183,7 @@ export class HomeCliente implements OnInit {
           })),
           pagos: [{
             metodoPagoId: this.metodoPagoSeleccionado(),
-            monto: this.totalPagar(),
-            referencia: referenciaPago
+            monto: this.totalPagar()
           }]
         };
 
