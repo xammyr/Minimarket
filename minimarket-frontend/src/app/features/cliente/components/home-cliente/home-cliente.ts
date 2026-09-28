@@ -135,6 +135,30 @@ export class HomeCliente implements OnInit {
     if (this.carrito().length === 0) return;
     const Swal = (await import('sweetalert2')).default;
     
+    // Si el pago es con Yape/Plin, mostrar el QR primero
+    if (this.metodoPagoSeleccionado() === 2) {
+      const confirmResult = await Swal.fire({
+        title: 'Pagar con Yape/Plin',
+        html: `
+          <p style="margin-bottom: 10px;">Escanea este código QR desde tu app para pagar <strong>S/ ${this.totalPagar().toFixed(2)}</strong></p>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/200px-QR_code_for_mobile_English_Wikipedia.svg.png" 
+               alt="QR Yape" 
+               style="width: 200px; height: 200px; margin: 0 auto; display: block; border: 3px solid #8e44ad; border-radius: 10px; padding: 5px;">
+          <p style="font-size: 0.85rem; color: #7f8c8d; margin-top: 15px;">Una vez realizado el pago, haz clic en Confirmar Pago para registrar tu pedido.</p>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar Pago',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#8e44ad',
+        cancelButtonColor: '#95a5a6',
+        allowOutsideClick: false
+      });
+
+      if (!confirmResult.isConfirmed) {
+        return; // El usuario canceló la compra
+      }
+    }
+
     // Obtener turno actual para registrar la venta real
     this.http.get<any>('/api/caja-turnos/actual/1').subscribe({
       next: (turnoRes) => {
