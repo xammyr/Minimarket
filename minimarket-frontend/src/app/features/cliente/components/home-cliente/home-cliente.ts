@@ -147,7 +147,7 @@ export class HomeCliente implements OnInit {
         title: 'Pagar con Yape/Plin',
         html: `
           <p style="margin-bottom: 10px;">Escanea este código QR desde tu app para pagar <strong>S/ ${this.totalPagar().toFixed(2)}</strong></p>
-          <img src="/assets/mi-qr-yape-prueba.jpeg"
+          <img src="/mi-qr-yape-prueba.jpeg"
                alt="QR Yape" 
                style="width: 200px; height: 200px; margin: 0 auto; display: block; border: 3px solid #8e44ad; border-radius: 10px; padding: 5px;">
           <p style="font-size: 0.85rem; color: #7f8c8d; margin-top: 15px;">Una vez realizado el pago, haz clic en Confirmar Pago para registrar tu pedido.</p>
