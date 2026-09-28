@@ -85,6 +85,60 @@ export class Facturas implements OnInit {
     }, 300);
   }
 
+  aprobarPago(id: number) {
+    Swal.fire({
+      title: '¿Aprobar pago?',
+      text: '¿Confirmas que recibiste el pago por Yape/Plin? Esto restará el stock.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, aprobar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#27ae60'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.cargando.set(true);
+        this.http.post(`/api/ventas/${id}/aprobar`, {}).subscribe({
+          next: () => {
+            Swal.fire('Aprobado', 'El pago ha sido confirmado y la venta completada.', 'success');
+            this.ngOnInit(); // Recargar la lista
+          },
+          error: (err) => {
+            console.error(err);
+            this.cargando.set(false);
+            Swal.fire('Error', 'No se pudo aprobar el pago.', 'error');
+          }
+        });
+      }
+    });
+  }
+
+  rechazarPago(id: number) {
+    Swal.fire({
+      title: '¿Rechazar pago?',
+      text: 'La venta web se anulará porque el pago no fue recibido.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, rechazar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#e74c3c'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.cargando.set(true);
+        this.http.post(`/api/ventas/${id}/anular?motivo=Pago%20web%20rechazado`, {}).subscribe({
+          next: () => {
+            Swal.fire('Rechazado', 'El pago ha sido rechazado y la venta anulada.', 'info');
+            this.ngOnInit(); // Recargar la lista
+          },
+          error: (err) => {
+            console.error(err);
+            this.cargando.set(false);
+            Swal.fire('Error', 'No se pudo rechazar el pago.', 'error');
+          }
+        });
+      }
+    });
+  }
+
   descargarExcel() {
     let datosAExportar = this.seleccionados().length > 0 
       ? this.facturasFiltradas().filter(f => this.seleccionados().includes(f.id))
