@@ -29,6 +29,7 @@
             <th>Comprobante</th>
             <th>Fecha y Hora</th>
             <th>Cliente ID</th>
+            <th>Método</th>
             <th>Estado</th>
             <th>Total</th>
             <th>Acciones</th>
@@ -51,6 +52,11 @@
                 <td class="fw-bold">{{ factura.numeroVenta }}</td>
                 <td>{{ factura.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
                 <td>{{ factura.clienteId || 'Público General' }}</td>
+                <td>
+                  <span style="font-weight: 600; color: #34495e;">
+                    {{ factura.pagos && factura.pagos.length > 0 ? factura.pagos[0].metodoPago : 'EFECTIVO' }}
+                  </span>
+                </td>
                 <td>
                   <span class="badge" [class.bg-success]="factura.estado === 'COMPLETADA'" [class.bg-danger]="factura.estado === 'ANULADA'" [class.bg-warning]="factura.estado === 'PENDIENTE'">
                     {{ factura.estado }}
@@ -99,6 +105,7 @@
           <p><strong>N°:</strong> {{ facturaSeleccionada.numeroVenta }}</p>
           <p><strong>Fecha:</strong> {{ facturaSeleccionada.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</p>
           <p><strong>Cliente:</strong> {{ facturaSeleccionada.clienteId || 'Público General' }}</p>
+          <p><strong>Método:</strong> {{ facturaSeleccionada.pagos && facturaSeleccionada.pagos.length > 0 ? facturaSeleccionada.pagos[0].metodoPago : 'EFECTIVO' }}</p>
           <p><strong>Estado:</strong> 
             <span [class.text-success]="facturaSeleccionada.estado === 'COMPLETADA'" [class.text-danger]="facturaSeleccionada.estado === 'ANULADA'">
               {{ facturaSeleccionada.estado | uppercase }}
@@ -153,6 +160,7 @@
       <p>Ticket: {{ facturaSeleccionada.numeroVenta }}</p>
       <p>Fecha: {{ facturaSeleccionada.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</p>
       <p>Cliente: {{ facturaSeleccionada.clienteId || 'Público General' }}</p>
+      <p>Método: {{ facturaSeleccionada.pagos && facturaSeleccionada.pagos.length > 0 ? facturaSeleccionada.pagos[0].metodoPago : 'EFECTIVO' }}</p>
       <p class="divider">================================</p>
     </div>
     
