@@ -8,7 +8,7 @@ import com.minimarket.caja.entity.*; import com.minimarket.caja.repository.*; im
    if(turno.getEstado()!=CajaTurno.EstadoCajaTurno.ABIERTO)throw new BusinessException("El turno de caja no está abierto");
    var cliente=r.clienteId()==null?null:clientes.findById(r.clienteId()).orElseThrow(()->ResourceNotFoundException.of("Cliente",r.clienteId()));
    var usuario=current.getUsuario();
-   var venta=Venta.builder().numeroVenta(numero()).cliente(cliente).usuario(usuario).cajaTurno(turno).fechaVenta(OffsetDateTime.now()).subtotal(BigDecimal.ZERO).descuento(BigDecimal.ZERO).igv(BigDecimal.ZERO).total(BigDecimal.ZERO).estado(Boolean.TRUE.equals(r.esPendiente()) ? Venta.EstadoVenta.PENDIENTE : Venta.EstadoVenta.COMPLETADA).build();
+   var venta=Venta.builder().numeroVenta(numero()).cliente(cliente).usuario(usuario).cajaTurno(turno).fechaVenta(OffsetDateTime.now()).subtotal(BigDecimal.ZERO).descuento(BigDecimal.ZERO).igv(BigDecimal.ZERO).total(BigDecimal.ZERO).estado(Boolean.TRUE.equals(r.pendiente()) ? Venta.EstadoVenta.PENDIENTE : Venta.EstadoVenta.COMPLETADA).build();
    BigDecimal base=BigDecimal.ZERO, desc=BigDecimal.ZERO, tax=BigDecimal.ZERO, gross=BigDecimal.ZERO;
    List<VentaDetalle> ds=new ArrayList<>();
    for(var x:r.detalles()){
@@ -29,7 +29,7 @@ import com.minimarket.caja.entity.*; import com.minimarket.caja.repository.*; im
    BigDecimal efectivo=BigDecimal.ZERO;
    for(var x:r.pagos()){var mp=metodos.findById(x.metodoPagoId()).orElseThrow(()->ResourceNotFoundException.of("MetodoPago",x.metodoPagoId()));if(!Boolean.TRUE.equals(mp.getActivo()))throw new BusinessException("MǸtodo de pago inactivo");if((mp.getCodigo().equalsIgnoreCase("EFECTIVO")))efectivo=efectivo.add(x.monto());pagos.save(VentaPago.builder().venta(venta).metodoPago(mp).monto(x.monto()).referencia(x.referencia()).build());}
    
-   if (!Boolean.TRUE.equals(r.esPendiente())) {
+   if (!Boolean.TRUE.equals(r.pendiente())) {
        for(var d:ds){if(Boolean.TRUE.equals(d.getProducto().getControlaStock())) inventario.registrar(new MovimientoInventarioRequest(d.getProducto().getId(),null,d.getCantidad(),TipoMovimientoInventario.VENTA,"Venta "+venta.getNumeroVenta(),"VENTA",venta.getId()));}
        if(efectivo.signum()>0)cajaMov.save(CajaMovimiento.builder().cajaTurno(turno).tipoMovimiento(CajaMovimiento.TipoMovimientoCaja.VENTA).monto(efectivo).concepto("Venta "+venta.getNumeroVenta()).referenciaTipo("VENTA").referenciaId(venta.getId()).usuario(usuario).build());
    }

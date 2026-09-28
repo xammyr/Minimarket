@@ -176,7 +176,7 @@ export class HomeCliente implements OnInit {
         const request = {
           clienteId: null, 
           cajaTurnoId: turnoRes.data.id,
-          esPendiente: this.metodoPagoSeleccionado() === 2, // Yape is pending
+          pendiente: this.metodoPagoSeleccionado() === 2, // Yape is pending
           detalles: this.carrito().map(item => ({
             productoId: item.producto.id,
             cantidad: item.cantidad,
@@ -190,7 +190,7 @@ export class HomeCliente implements OnInit {
 
         this.http.post<any>('/api/ventas', request).subscribe({
           next: (res) => {
-            if (request.esPendiente) {
+            if (request.pendiente) {
               Swal.fire('¡Pedido Recibido!', `Tu pedido (Ticket: ${res.data.numeroVenta}) está pendiente. Por favor acércate a caja para confirmar el pago.`, 'info');
             } else {
               Swal.fire('¡Compra Exitosa!', `Tu pedido ha sido registrado (Ticket: ${res.data.numeroVenta}).`, 'success');
