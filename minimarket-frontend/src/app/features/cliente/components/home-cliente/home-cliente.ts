@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ProductoService } from '../../../productos/services/producto'; 
 import { Producto } from '../../../productos/models/producto.interface';
 import { RouterModule } from '@angular/router';
@@ -124,16 +125,49 @@ export class HomeCliente implements OnInit {
      this.carrito.update(items => items.filter(item => item.producto.id !== productoId));
   }
 
+  private http = inject(HttpClient); // Inject at the top
+
+  metodoPagoSeleccionado = signal<number>(1); // 1 = Efectivo, 2 = Yape
+
+  seleccionarMetodo(id: number) { this.metodoPagoSeleccionado.set(id); }
+
   async procederPago() {
+    if (this.carrito().length === 0) return;
     const Swal = (await import('sweetalert2')).default;
-    Swal.fire({
-      icon: 'success',
-      title: '¡Simulación de pago exitosa!',
-      text: 'Gracias por tu compra.',
-      confirmButtonText: 'Continuar'
+    
+    // Obtener turno actual para registrar la venta real
+    this.http.get<any>('/api/caja-turnos/actual/1').subscribe({
+      next: (turnoRes) => {
+        if (!turnoRes.data || !turnoRes.data.id) {
+          Swal.fire('Error', 'No hay turno de caja abierto en el sistema.', 'error');
+          return;
+        }
+
+        const request = {
+          clienteId: null, 
+          cajaTurnoId: turnoRes.data.id,
+          detalles: this.carrito().map(item => ({
+            productoId: item.producto.id,
+            cantidad: item.cantidad,
+            descuento: 0
+          })),
+          pagos: [{
+            metodoPagoId: this.metodoPagoSeleccionado(),
+            monto: this.totalPagar()
+          }]
+        };
+
+        this.http.post<any>('/api/ventas', request).subscribe({
+          next: (res) => {
+            Swal.fire('¡Compra Exitosa!', `Tu pedido ha sido registrado (Ticket: ${res.data.numeroVenta}).`, 'success');
+            this.carrito.set([]);
+            this.isCartOpen.set(false);
+          },
+          error: (err) => Swal.fire('Error', 'No se pudo procesar la compra', 'error')
+        });
+      },
+      error: () => Swal.fire('Error', 'La tienda está cerrada (no hay caja abierta).', 'error')
     });
-    this.carrito.set([]);
-    this.isCartOpen.set(false);
   }
 
   async mostrarTerminos() {
