@@ -133,33 +133,41 @@
 <!-- ================= ZONA REAL DE IMPRESIÓN ================= -->
 <div class="zona-impresion">
   @if (facturaSeleccionada) {
-    <div class="formato-papel-ticket">
-      <h2 style="text-align: center; margin: 0; font-size: 18px;">MINIMARKET</h2>
-      <p style="text-align: center; margin: 0; font-size: 12px;">RUC: 20123456789</p>
-      <p style="text-align: center; margin: 5px 0 15px 0; font-size: 12px;">Ticket de Venta</p>
-      
-      <p style="margin: 2px 0; border-top: 1px dashed black; padding-top: 5px;"><strong>N°:</strong> {{ facturaSeleccionada.numeroVenta }}</p>
-      <p style="margin: 2px 0;"><strong>Fecha:</strong> {{ facturaSeleccionada.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</p>
-      <p style="margin: 2px 0; border-bottom: 1px dashed black; padding-bottom: 5px;"><strong>Cliente:</strong> {{ facturaSeleccionada.clienteId || 'Público General' }}</p>
-      
-      <table style="width: 100%; text-align: left; margin: 10px 0; border-collapse: collapse; font-size: 11px;">
-        <tr style="border-bottom: 1px dashed black;">
-          <th>Cant.</th>
-          <th>Producto</th>
-          <th style="text-align: right;">Total</th>
+    <div class="voucher-header">
+      <h2>MINIMARKET</h2>
+      <p>RUC: 20123456789</p>
+      <p class="divider">================================</p>
+      <p>Ticket: {{ facturaSeleccionada.numeroVenta }}</p>
+      <p>Fecha: {{ facturaSeleccionada.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</p>
+      <p>Cliente: {{ facturaSeleccionada.clienteId || 'Público General' }}</p>
+      <p class="divider">================================</p>
+    </div>
+    
+    <table class="voucher-table">
+      <thead>
+        <tr>
+          <th>CANT</th>
+          <th>DESCRIPCION</th>
+          <th>IMPORTE</th>
         </tr>
+      </thead>
+      <tbody>
         @for (detalle of facturaSeleccionada.detalles; track detalle.id) {
           <tr>
-            <td style="padding: 3px 0;">{{ detalle.cantidad }}</td>
-            <td style="padding: 3px 0;">{{ detalle.producto }}</td>
-            <td style="padding: 3px 0; text-align: right;">S/ {{ detalle.total.toFixed(2) }}</td>
+            <td>{{ detalle.cantidad }}</td>
+            <td>{{ detalle.producto }}</td>
+            <td>S/ {{ detalle.total.toFixed(2) }}</td>
           </tr>
         }
-      </table>
+      </tbody>
+    </table>
 
-      <h3 style="text-align: center; margin: 15px 0; font-size: 16px;">TOTAL: S/ {{ facturaSeleccionada.total.toFixed(2) }}</h3>
-      
-      <p style="text-align: center; margin-top: 20px; font-size: 11px; border-top: 1px dashed black; padding-top: 10px;">¡Gracias por su compra!</p>
+    <div class="voucher-footer">
+      <p class="divider">================================</p>
+      <h3>TOTAL: S/ {{ facturaSeleccionada.total.toFixed(2) }}</h3>
+      <p class="divider">================================</p>
+      <p>¡Gracias por su compra!</p>
+      <p>Vuelva pronto</p>
     </div>
   }
 </div>

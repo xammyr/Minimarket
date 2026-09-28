@@ -17,6 +17,8 @@ export class ResumenAdmin implements OnInit {
   
   totalVentas: number = 0;
   montoTotalVentas: number = 0;
+  ventasEfectivo: number = 0;
+  ventasYape: number = 0;
   totalProductos: number = 0;
   ventasRecientes: any[] = [];
   stockCritico: any[] = [];
@@ -76,6 +78,19 @@ export class ResumenAdmin implements OnInit {
         const ventasCompletadas = ventas.filter((v: any) => v.estado === 'COMPLETADA');
         
         this.montoTotalVentas = ventasCompletadas.reduce((sum: number, v: any) => sum + v.total, 0);
+        
+        // Calcular Yape vs Efectivo
+        this.ventasEfectivo = 0;
+        this.ventasYape = 0;
+        
+        ventasCompletadas.forEach((v: any) => {
+          const metodo = v.pagos && v.pagos.length > 0 ? v.pagos[0].metodoPago?.toUpperCase() : 'EFECTIVO';
+          if (metodo === 'YAPE' || metodo === 'PLIN') {
+            this.ventasYape += v.total;
+          } else {
+            this.ventasEfectivo += v.total;
+          }
+        });
         
         this.procesarDatosGrafico(ventasCompletadas);
       }

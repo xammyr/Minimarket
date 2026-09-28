@@ -148,8 +148,136 @@
   &:disabled { background: #bdc3c7; cursor: not-allowed; }
 }
 
+/* --- CATÁLOGO HEADER & BUSCADOR --- */
+.catalog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+
+  h2 { margin: 0; color: #2c3e50; }
+
+  .search-box {
+    position: relative;
+    width: 300px;
+    max-width: 100%;
+    
+    .search-icon {
+      position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+      color: #95a5a6; font-size: 1.1rem;
+    }
+    
+    input {
+      width: 100%;
+      padding: 10px 15px 10px 45px;
+      border: 1px solid #bdc3c7;
+      border-radius: 20px;
+      outline: none;
+      font-size: 1rem;
+      &:focus { border-color: #3498db; box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2); }
+    }
+  }
+}
+
+.item-edit-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+  label {
+    font-size: 0.85rem; color: #7f8c8d; display: flex; align-items: center; gap: 5px;
+  }
+  input {
+    width: 60px;
+    padding: 3px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    outline: none;
+    text-align: center;
+    &:focus { border-color: #3498db; }
+  }
+}
+
+.payment-methods {
+  padding: 15px 0;
+  border-top: 2px solid #ecf0f1;
+  
+  .pay-title { margin: 0 0 10px 0; color: #2c3e50; font-weight: 600; }
+  .pay-options {
+    display: flex; gap: 10px;
+    
+    button {
+      flex: 1; padding: 10px; border: 1px solid #bdc3c7;
+      background: #f8f9fa; border-radius: 8px; cursor: pointer;
+      font-weight: 600; color: #7f8c8d; transition: all 0.2s;
+      
+      &:hover { background: #e9ecef; }
+      &.active { background: #3498db; color: white; border-color: #3498db; }
+    }
+  }
+}
+
 /* --- ESTILOS DE IMPRESIÓN (TICKET) --- */
 .printable-voucher {
   display: none; /* Oculto en la pantalla normal */
+}
+
+@media print {
+  @page {
+    margin: 0; 
+    size: 85mm auto; /* Escala a 85mm de ancho */
+  }
+
+  body * {
+    visibility: hidden; /* Oculta todo por defecto */
+  }
+
+  .print-only, .print-only * {
+    visibility: visible; /* Solo muestra lo que debe imprimirse */
+  }
+
+  .print-only {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm; /* Deja 5mm de margen interno aprox */
+    padding: 5mm;
+    margin: 0 auto;
+    font-family: 'Courier New', Courier, monospace !important;
+    color: #000 !important;
+    background: #fff !important;
+  }
+
+  .voucher-header {
+    text-align: center;
+    margin-bottom: 10px;
+    
+    h2 { font-size: 1.3rem; margin: 0 0 5px 0; font-weight: 900; }
+    p { margin: 2px 0; font-size: 0.95rem; font-weight: bold; }
+    .divider { font-size: 0.8rem; letter-spacing: 1px; font-weight: bold; }
+  }
+
+  .voucher-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    font-weight: bold;
+
+    th, td { padding: 3px 0; }
+    th { border-bottom: 1px dashed #000; text-align: left; }
+    
+    .col-cant { width: 15%; text-align: left; }
+    .col-desc { width: 55%; text-align: left; }
+    .col-imp { width: 30%; text-align: right; }
+  }
+
+  .voucher-footer {
+    text-align: center;
+    h3 { font-size: 1.2rem; margin: 5px 0; font-weight: 900; }
+    p { margin: 2px 0; font-size: 0.95rem; font-weight: bold; }
+    .thanks { font-style: italic; }
+  }
 }
 

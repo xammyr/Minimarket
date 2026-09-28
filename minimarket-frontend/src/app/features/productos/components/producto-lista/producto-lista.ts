@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal, computed, HostListener } from '@angular/core'; 
 import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { ProductoService } from '../../services/producto';
 import { Producto } from '../../models/producto.interface';
 import Swal from 'sweetalert2';
@@ -7,6 +8,7 @@ import Swal from 'sweetalert2';
 export interface DetalleCarrito {
   producto: Producto;
   cantidad: number;
+  precioEditable: number;
   subtotal: number;
 }
 
@@ -15,7 +17,7 @@ import { DatePipe } from '@angular/common';
 @Component({
   selector: 'app-producto-lista',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, FormsModule],
   templateUrl: './producto-lista.html',
   styleUrl: './producto-lista.scss'
 })
@@ -27,9 +29,22 @@ export class ProductoLista implements OnInit {
   carrito = signal<DetalleCarrito[]>([]); 
   ultimoTicket = signal<any>(null); // Para almacenar los datos de la última venta e imprimirlos
   
+  terminoBusqueda = signal<string>('');
+  metodoPagoSeleccionado = signal<number>(1); // 1 = Efectivo, 2 = Yape
+
   // Variables para el escáner de código de barras
   private barcodeBuffer = '';
   private lastKeyTime = 0;
+
+  productosFiltrados = computed(() => {
+    const term = this.terminoBusqueda().toLowerCase().trim();
+    if (!term) return this.productos();
+    return this.productos().filter(p => 
+      p.nombre.toLowerCase().includes(term) || 
+      p.codigoInterno.toLowerCase().includes(term) ||
+      (p.codigoBarras && p.codigoBarras.toLowerCase().includes(term))
+    );
+  });
 
   total = computed(() => {
     return this.carrito().reduce((suma, item) => suma + item.subtotal, 0);
@@ -106,21 +121,36 @@ export class ProductoLista implements OnInit {
     });
   }
 
+  actualizarBusqueda(event: any) { this.terminoBusqueda.set(event.target.value); }
+
+  seleccionarMetodo(id: number) { this.metodoPagoSeleccionado.set(id); }
+
   agregarAlCarrito(productoSeleccionado: Producto) {
     this.carrito.update((itemsActuales) => {
       const indice = itemsActuales.findIndex(item => item.producto.id === productoSeleccionado.id);
       if (indice !== -1) {
         const nuevosItems = [...itemsActuales];
         nuevosItems[indice].cantidad += 1;
-        nuevosItems[indice].subtotal = nuevosItems[indice].cantidad * productoSeleccionado.precioVenta;
+        nuevosItems[indice].subtotal = nuevosItems[indice].cantidad * nuevosItems[indice].precioEditable;
         return nuevosItems;
       } else {
         return [...itemsActuales, {
           producto: productoSeleccionado,
           cantidad: 1,
+          precioEditable: productoSeleccionado.precioVenta,
           subtotal: productoSeleccionado.precioVenta
         }];
       }
+    });
+  }
+
+  recalcularSubtotal(item: DetalleCarrito) {
+    this.carrito.update(items => {
+      const index = items.findIndex(i => i.producto.id === item.producto.id);
+      if (index !== -1) {
+        items[index].subtotal = items[index].cantidad * items[index].precioEditable;
+      }
+      return [...items];
     });
   }
 
@@ -150,14 +180,18 @@ export class ProductoLista implements OnInit {
         const request = {
           clienteId: 1, // Cliente Genérico
           cajaTurnoId: cajaTurnoId,
-          detalles: this.carrito().map(item => ({
-            productoId: item.producto.id,
-            cantidad: item.cantidad,
-            descuento: 0 // El backend espera "descuento", no "precioUnitario"
-          })),
+          detalles: this.carrito().map(item => {
+            const precioOriginal = item.producto.precioVenta;
+            const descuentoTotalPorItem = (precioOriginal - item.precioEditable) * item.cantidad;
+            return {
+              productoId: item.producto.id,
+              cantidad: item.cantidad,
+              descuento: descuentoTotalPorItem > 0 ? descuentoTotalPorItem : 0
+            };
+          }),
           pagos: [
             {
-              metodoPagoId: 1, // Efectivo
+              metodoPagoId: this.metodoPagoSeleccionado(), 
               monto: totalApagar
             }
           ]

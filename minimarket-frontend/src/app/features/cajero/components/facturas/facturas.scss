@@ -223,23 +223,5 @@ tr.fila-seleccionada {
    ========================================= */
 .zona-impresion { display: none; }
 
-@media print {
-  @page { size: 80mm auto; margin: 0; }
-  
-  :host { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 99999; }
-  .pantalla-normal, .modal-overlay { display: none !important; }
-  
-  .zona-impresion {
-    display: flex !important;
-    justify-content: center;
-    width: 100%;
-    background: white;
-    padding-top: 10mm; 
-  }
-
-  .formato-papel-ticket {
-    width: 72mm;
-    color: black;
-    font-family: 'Courier New', Courier, monospace;
-  }
-}
+/* La impresión es manejada globalmente en styles.scss */
+.zona-impresion { display: none; }
