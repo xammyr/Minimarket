@@ -20,6 +20,7 @@ export class Facturas implements OnInit {
   facturaSeleccionada: any = null;
   mostrarModal = false;
   seleccionados = signal<string[]>([]);
+  cargando = signal(true);
 
   ngOnInit() {
     this.http.get<any>('/api/ventas?size=50').subscribe({
@@ -27,8 +28,12 @@ export class Facturas implements OnInit {
         if (res.data && res.data.content) {
           this.listaFacturas.set(res.data.content);
         }
+        this.cargando.set(false);
       },
-      error: (err) => console.error("Error cargando ventas", err)
+      error: (err) => {
+        console.error("Error cargando ventas", err);
+        this.cargando.set(false);
+      }
     });
   }
 

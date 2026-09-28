@@ -35,29 +35,38 @@
           </tr>
         </thead>
         <tbody>
-          @for (factura of facturasFiltradas(); track factura.id) {
-            <tr [class.fila-seleccionada]="seleccionados().includes(factura.id)">
-              <td style="text-align: center;">
-                <input type="checkbox" [checked]="seleccionados().includes(factura.id)" (change)="toggleSeleccion(factura.id)">
-              </td>
-              <td class="fw-bold">{{ factura.numeroVenta }}</td>
-              <td>{{ factura.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
-              <td>{{ factura.clienteId || 'Público General' }}</td>
-              <td>
-                <span class="badge" [class.bg-success]="factura.estado === 'COMPLETADA'" [class.bg-danger]="factura.estado === 'ANULADA'">
-                  {{ factura.estado }}
-                </span>
-              </td>
-              <td class="fw-bold text-success">S/ {{ factura.total.toFixed(2) }}</td>
-              <td>
-                <button class="btn-icon" title="Ver detalle" (click)="verDetalle(factura)"><i class="fa-solid fa-eye"></i></button>
-                <button class="btn-icon" title="Imprimir PDF" (click)="imprimirFactura(factura)"><i class="fa-solid fa-print"></i></button>
-              </td>
-            </tr>
-          } @empty {
+          @if (cargando()) {
             <tr>
-              <td colspan="7" class="empty-state">No se encontraron comprobantes.</td>
+              <td colspan="7" class="empty-state" style="padding: 40px 0;">
+                <i class="fa-solid fa-spinner fa-spin fa-2x" style="color: #3498db; margin-bottom: 10px;"></i>
+                <p>Cargando comprobantes...</p>
+              </td>
             </tr>
+          } @else {
+            @for (factura of facturasFiltradas(); track factura.id) {
+              <tr [class.fila-seleccionada]="seleccionados().includes(factura.id)">
+                <td style="text-align: center;">
+                  <input type="checkbox" [checked]="seleccionados().includes(factura.id)" (change)="toggleSeleccion(factura.id)">
+                </td>
+                <td class="fw-bold">{{ factura.numeroVenta }}</td>
+                <td>{{ factura.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ factura.clienteId || 'Público General' }}</td>
+                <td>
+                  <span class="badge" [class.bg-success]="factura.estado === 'COMPLETADA'" [class.bg-danger]="factura.estado === 'ANULADA'">
+                    {{ factura.estado }}
+                  </span>
+                </td>
+                <td class="fw-bold text-success">S/ {{ factura.total.toFixed(2) }}</td>
+                <td>
+                  <button class="btn-icon" title="Ver detalle" (click)="verDetalle(factura)"><i class="fa-solid fa-eye"></i></button>
+                  <button class="btn-icon" title="Imprimir PDF" (click)="imprimirFactura(factura)"><i class="fa-solid fa-print"></i></button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="empty-state">No se encontraron comprobantes.</td>
+              </tr>
+            }
           }
         </tbody>
       </table>
