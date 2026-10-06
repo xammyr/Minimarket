@@ -11,7 +11,7 @@ import com.minimarket.caja.entity.*; import com.minimarket.caja.repository.*; im
    
    boolean fromWebStore = r.clienteId() == null;
    boolean hasYape = r.pagos().stream().anyMatch(p -> p.metodoPagoId() == 2L);
-   boolean isPendiente = (r.pendiente() != null && r.pendiente()) || (fromWebStore && hasYape);
+   boolean isPendiente = (r.pendiente() != null && r.pendiente()) || fromWebStore;
    
    var venta=Venta.builder().numeroVenta(numero()).cliente(cliente).usuario(usuario).cajaTurno(turno).fechaVenta(OffsetDateTime.now()).subtotal(BigDecimal.ZERO).descuento(BigDecimal.ZERO).igv(BigDecimal.ZERO).total(BigDecimal.ZERO).estado(isPendiente ? Venta.EstadoVenta.PENDIENTE : Venta.EstadoVenta.COMPLETADA).build();
    BigDecimal base=BigDecimal.ZERO, desc=BigDecimal.ZERO, tax=BigDecimal.ZERO, gross=BigDecimal.ZERO;
@@ -38,6 +38,40 @@ import com.minimarket.caja.entity.*; import com.minimarket.caja.repository.*; im
        for(var d:ds){if(Boolean.TRUE.equals(d.getProducto().getControlaStock())) inventario.registrar(new MovimientoInventarioRequest(d.getProducto().getId(),null,d.getCantidad(),TipoMovimientoInventario.VENTA,"Venta "+venta.getNumeroVenta(),"VENTA",venta.getId()));}
        if(efectivo.signum()>0)cajaMov.save(CajaMovimiento.builder().cajaTurno(turno).tipoMovimiento(CajaMovimiento.TipoMovimientoCaja.VENTA).monto(efectivo).concepto("Venta "+venta.getNumeroVenta()).referenciaTipo("VENTA").referenciaId(venta.getId()).usuario(usuario).build());
    }
+   return obtener(venta.getId());
+ }
+
+ @Override @Transactional public VentaResponseDTO crearPublica(CrearVentaRequest r){
+   var turno=turnos.findById(r.cajaTurnoId()).orElseThrow(()->ResourceNotFoundException.of("CajaTurno",r.cajaTurnoId()));
+   if(turno.getEstado()!=CajaTurno.EstadoCajaTurno.ABIERTO)throw new BusinessException("El turno de caja no estǭ abierto");
+   
+   // Usamos el usuario genérico (ID 1) para las ventas públicas por internet
+   var usuario = new com.minimarket.usuario.entity.Usuario();
+   usuario.setId(1L);
+
+   boolean isPendiente = true; // Siempre pendiente en tienda web
+   
+   var venta=Venta.builder().numeroVenta(numero()).cliente(null).usuario(usuario).cajaTurno(turno).fechaVenta(OffsetDateTime.now()).subtotal(BigDecimal.ZERO).descuento(BigDecimal.ZERO).igv(BigDecimal.ZERO).total(BigDecimal.ZERO).estado(Venta.EstadoVenta.PENDIENTE).build();
+   BigDecimal base=BigDecimal.ZERO, desc=BigDecimal.ZERO, tax=BigDecimal.ZERO, gross=BigDecimal.ZERO;
+   List<VentaDetalle> ds=new ArrayList<>();
+   for(var x:r.detalles()){
+     var p=productos.findById(x.productoId()).orElseThrow(()->ResourceNotFoundException.of("Producto",x.productoId()));
+     if(!Boolean.TRUE.equals(p.getActivo()))throw new BusinessException("Producto inactivo: "+p.getNombre());
+     if(Boolean.TRUE.equals(p.getControlaStock()) && p.getStockActual().compareTo(x.cantidad())<0)throw new BusinessException("Stock insuficiente para: "+p.getNombre());
+     BigDecimal lineGross=p.getPrecioVenta().multiply(x.cantidad()).subtract(x.descuento()).setScale(2,RM);
+     if(lineGross.signum()<0)throw new BusinessException("Descuento mayor al importe del producto: "+p.getNombre());
+     BigDecimal lineBase=Boolean.TRUE.equals(p.getAfectoIgv())?lineGross.divide(BigDecimal.ONE.add(IGV_RATE),2,RM):lineGross;
+     BigDecimal lineTax=Boolean.TRUE.equals(p.getAfectoIgv())?lineGross.subtract(lineBase):BigDecimal.ZERO;
+     desc=desc.add(x.descuento());base=base.add(lineBase);tax=tax.add(lineTax);gross=gross.add(lineGross);
+     ds.add(VentaDetalle.builder().venta(venta).producto(p).cantidad(x.cantidad()).precioUnitario(p.getPrecioVenta()).descuento(x.descuento()).igv(lineTax).subtotal(lineBase).total(lineGross).build());
+   }
+   BigDecimal paid=r.pagos().stream().map(VentaPagoRequest::monto).reduce(BigDecimal.ZERO,BigDecimal::add).setScale(2,RM);
+   gross=gross.setScale(2,RM); if(paid.compareTo(gross)!=0)throw new BusinessException("La suma de pagos debe ser igual al total de la venta");
+   venta.setSubtotal(base.setScale(2,RM));venta.setDescuento(desc.setScale(2,RM));venta.setIgv(tax.setScale(2,RM));venta.setTotal(gross);
+   venta=ventas.save(venta); detalles.saveAll(ds);
+   
+   for(var x:r.pagos()){var mp=metodos.findById(x.metodoPagoId()).orElseThrow(()->ResourceNotFoundException.of("MetodoPago",x.metodoPagoId()));if(!Boolean.TRUE.equals(mp.getActivo()))throw new BusinessException("MǸtodo de pago inactivo");pagos.save(VentaPago.builder().venta(venta).metodoPago(mp).monto(x.monto()).referencia(x.referencia()).build());}
+   
    return obtener(venta.getId());
  }
  

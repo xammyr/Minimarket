@@ -159,27 +159,10 @@
     <div class="drawer-footer">
       <div class="payment-methods" style="margin-bottom: 15px;">
         <p style="margin: 0 0 10px 0; font-weight: bold; color: #2c3e50;">Método de Pago:</p>
-        <div style="display: flex; gap: 10px;">
-          <button 
-            [style.background]="metodoPagoSeleccionado() === 1 ? '#3498db' : '#f8f9fa'"
-            [style.color]="metodoPagoSeleccionado() === 1 ? 'white' : '#7f8c8d'"
-            [style.border]="metodoPagoSeleccionado() === 1 ? '1px solid #3498db' : '1px solid #bdc3c7'"
-            style="flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;"
-            (click)="seleccionarMetodo(1)">
-            Efectivo
-          </button>
-          <button 
-            [style.background]="metodoPagoSeleccionado() === 2 ? '#3498db' : '#f8f9fa'"
-            [style.color]="metodoPagoSeleccionado() === 2 ? 'white' : '#7f8c8d'"
-            [style.border]="metodoPagoSeleccionado() === 2 ? '1px solid #3498db' : '1px solid #bdc3c7'"
-            style="flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;"
-            (click)="seleccionarMetodo(2)">
-            Yape/Plin
-          </button>
-        </div>
+        <p style="font-size: 0.9rem; color: #7f8c8d; margin: 0;">El pago se realizará manualmente en caja (Efectivo/Tarjeta/Yape).</p>
       </div>
       <div class="total-row"><span>Total a pagar:</span><strong>S/ {{ totalPagar().toFixed(2) }}</strong></div>
-      <button class="checkout-btn" (click)="procederPago()">Proceder al Pago</button>
+      <button class="checkout-btn" (click)="procederPago()">Enviar Pedido (Pago en Caja)</button>
     </div>
   }
 </aside>

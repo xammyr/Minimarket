@@ -133,37 +133,11 @@ export class HomeCliente implements OnInit {
 
   private http = inject(HttpClient); // Inject at the top
 
-  metodoPagoSeleccionado = signal<number>(1); // 1 = Efectivo, 2 = Yape
-
-  seleccionarMetodo(id: number) { this.metodoPagoSeleccionado.set(id); }
+  metodoPagoSeleccionado = signal<number>(1); // 1 = Efectivo (Pago en Caja)
 
   async procederPago() {
     if (this.carrito().length === 0) return;
     const Swal = (await import('sweetalert2')).default;
-
-    // Si el pago es con Yape/Plin, mostrar el QR primero
-    if (this.metodoPagoSeleccionado() === 2) {
-      const confirmResult = await Swal.fire({
-        title: 'Pagar con Yape/Plin',
-        html: `
-          <p style="margin-bottom: 10px;">Escanea este código QR desde tu app para pagar <strong>S/ ${this.totalPagar().toFixed(2)}</strong></p>
-          <img src="/mi-qr-yape-prueba.jpeg"
-               alt="QR Yape" 
-               style="width: 200px; height: 200px; margin: 0 auto; display: block; border: 3px solid #8e44ad; border-radius: 10px; padding: 5px; margin-bottom: 15px;">
-          <p style="font-size: 0.85rem; color: #7f8c8d; margin-top: 15px;">Muestra la captura de pantalla al cajero y luego haz clic en Confirmar Pago.</p>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar Pago',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#8e44ad',
-        cancelButtonColor: '#95a5a6',
-        allowOutsideClick: false
-      });
-
-      if (!confirmResult.isConfirmed) {
-        return; // El usuario canceló la compra
-      }
-    }
 
     // Obtener turno actual para registrar la venta real
     this.http.get<any>('/api/caja-turnos/actual/1').subscribe({
@@ -176,7 +150,7 @@ export class HomeCliente implements OnInit {
         const request = {
           clienteId: null, 
           cajaTurnoId: turnoRes.data.id,
-          pendiente: this.metodoPagoSeleccionado() === 2, // Yape is pending
+          pendiente: true, // Todas las ventas web son pendientes para pago manual en caja
           detalles: this.carrito().map(item => ({
             productoId: item.producto.id,
             cantidad: item.cantidad,
@@ -188,7 +162,7 @@ export class HomeCliente implements OnInit {
           }]
         };
 
-        this.http.post<any>('/api/ventas', request).subscribe({
+        this.http.post<any>('/api/ventas/publica', request).subscribe({
           next: (res) => {
             if (request.pendiente) {
               Swal.fire('¡Pedido Recibido!', `Tu pedido (Ticket: ${res.data.numeroVenta}) está pendiente. Por favor acércate a caja para confirmar el pago.`, 'info');
