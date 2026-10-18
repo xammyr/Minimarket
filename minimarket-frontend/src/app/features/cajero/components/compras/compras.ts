@@ -1,10 +1,11 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CompraService, CompraResponseDTO, CompraRequestDTO, CompraDetalleRequestDTO } from '../../services/compra.service';
 import { ProveedorService } from '../../../admin/services/proveedor.service';
 import { ProductoService } from '../../../productos/services/producto';
 import { Producto } from '../../../productos/models/producto.interface';
+import { playScannerBeep } from '../../../../core/utils/scanner-audio.util';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -46,8 +47,72 @@ export class Compras implements OnInit {
   cantidadTemporal: number = 1;
   precioTemporal: number = 0;
 
+  // Variables para escáner
+  private barcodeBuffer = '';
+  private lastKeyTime = 0;
+
   ngOnInit() {
     this.cargarDatos();
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (!this.mostrarModalNueva) return;
+
+    const currentTime = new Date().getTime();
+    const timeDiff = currentTime - this.lastKeyTime;
+
+    if (timeDiff > 120) {
+      this.barcodeBuffer = '';
+    }
+
+    if (event.key === 'Enter') {
+      if (this.barcodeBuffer.length >= 2) {
+        event.preventDefault();
+        this.procesarCodigoEscaneado(this.barcodeBuffer.trim());
+        this.barcodeBuffer = '';
+      }
+    } else if (event.key.length === 1) {
+      this.barcodeBuffer += event.key;
+    }
+
+    this.lastKeyTime = currentTime;
+  }
+
+  procesarCodigoEscaneado(codigo: string) {
+    const clean = codigo.trim().toLowerCase();
+    const prod = this.listaProductos().find(p => 
+      (p.codigoBarras && p.codigoBarras.trim().toLowerCase() === clean) ||
+      (p.codigoInterno && p.codigoInterno.trim().toLowerCase() === clean)
+    );
+
+    if (prod) {
+      this.productoTemporalId = prod.id;
+      this.precioTemporal = prod.precioCompra || 0;
+      playScannerBeep(true);
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: `Producto: ${prod.nombre}`,
+        showConfirmButton: false,
+        timer: 1500
+      });
+      setTimeout(() => {
+        document.getElementById('input-cantidad-compra')?.focus();
+      }, 100);
+    } else {
+      playScannerBeep(false);
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'warning',
+        title: 'Producto no encontrado',
+        text: `Código: ${codigo}`,
+        showConfirmButton: false,
+        timer: 2000
+      });
+    }
   }
 
   cargarDatos() {
@@ -71,10 +136,9 @@ export class Compras implements OnInit {
       error: (err) => console.error("Error cargando proveedores", err)
     });
 
-    this.productoService.obtenerProductos().subscribe({
+    this.productoService.obtenerProductos(0, 1000).subscribe({
       next: (res) => {
          if (res.data) {
-             // Handle if res.data is an array or object with content
              this.listaProductos.set((res.data as any).content || res.data);
          }
       },

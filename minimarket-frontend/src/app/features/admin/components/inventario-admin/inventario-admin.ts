@@ -1,9 +1,10 @@
-import { Component, inject, OnInit, signal, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ProductoService } from '../../../productos/services/producto';
 import { Producto } from '../../../productos/models/producto.interface';
+import { playScannerBeep } from '../../../../core/utils/scanner-audio.util';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -20,6 +21,29 @@ export class InventarioAdmin implements OnInit {
   
   productos = signal<Producto[]>([]);
   cargando = signal<boolean>(true);
+  terminoBusqueda = signal<string>('');
+
+  // Variables para escáner
+  private barcodeBuffer = '';
+  private lastKeyTime = 0;
+
+  productosFiltrados = computed(() => {
+    const rawTerm = this.terminoBusqueda().toLowerCase().trim();
+    if (!rawTerm) return this.productos();
+
+    const term = rawTerm.replace(/[-\s]/g, '');
+    return this.productos().filter(p => {
+      const nombre = p.nombre.toLowerCase();
+      const codigoInt = p.codigoInterno.toLowerCase();
+      const codigoBar = p.codigoBarras ? p.codigoBarras.toLowerCase() : '';
+
+      return nombre.includes(rawTerm) ||
+             codigoInt.includes(rawTerm) ||
+             codigoBar.includes(rawTerm) ||
+             codigoInt.replace(/[-\s]/g, '').includes(term) ||
+             codigoBar.replace(/[-\s]/g, '').includes(term);
+    });
+  });
 
   // Catálogos para los selects
   categorias = signal<any[]>([]);
@@ -52,6 +76,110 @@ export class InventarioAdmin implements OnInit {
     this.cargarCatalogos();
   }
 
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    const currentTime = new Date().getTime();
+    const timeDiff = currentTime - this.lastKeyTime;
+
+    if (timeDiff > 120) {
+      this.barcodeBuffer = '';
+    }
+
+    if (event.key === 'Enter') {
+      if (this.barcodeBuffer.length >= 2) {
+        event.preventDefault();
+        this.procesarCodigoEscaneado(this.barcodeBuffer.trim());
+        this.barcodeBuffer = '';
+      }
+    } else if (event.key.length === 1) {
+      const target = event.target as HTMLElement;
+      const isBarcodeInput = target?.id === 'input-codigo-barras' || target?.getAttribute('name') === 'codigoBarras';
+      const isOtherInput = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
+
+      // Si está en otro input (ej. escribiendo nombre), solo capturamos si viene a ráfaga de escáner (<60ms)
+      if (!isOtherInput || isBarcodeInput || timeDiff < 60) {
+        this.barcodeBuffer += event.key;
+      }
+    }
+
+    this.lastKeyTime = currentTime;
+  }
+
+  procesarCodigoEscaneado(codigo: string) {
+    if (!codigo) return;
+
+    if (this.mostrarModal()) {
+      // Caso 1: El modal de registro/edición de producto está abierto
+      this.formulario.codigoBarras = codigo;
+      this.cdr.detectChanges();
+      playScannerBeep(true);
+
+      const duplicado = this.productos().find(p => 
+        p.codigoBarras && p.codigoBarras.trim().toLowerCase() === codigo.toLowerCase() &&
+        (!this.modoEdicion() || p.id !== this.productoEditandoId())
+      );
+
+      if (duplicado) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Código ya registrado',
+          text: `El código "${codigo}" ya está asignado a: "${duplicado.nombre}".`,
+          timer: 3500
+        });
+      } else {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: `Código escaneado: ${codigo}`,
+          showConfirmButton: false,
+          timer: 1500
+        });
+      }
+
+      // Enfocar automáticamente el nombre del producto
+      setTimeout(() => {
+        document.getElementById('input-nombre-producto')?.focus();
+      }, 100);
+
+    } else {
+      // Caso 2: Vista de tabla de inventario
+      this.terminoBusqueda.set(codigo);
+      const encontrado = this.productos().find(p => 
+        (p.codigoBarras && p.codigoBarras.trim().toLowerCase() === codigo.toLowerCase()) ||
+        (p.codigoInterno && p.codigoInterno.trim().toLowerCase() === codigo.toLowerCase())
+      );
+
+      if (encontrado) {
+        playScannerBeep(true);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: `Producto: ${encontrado.nombre}`,
+          html: `Stock: <b>${encontrado.stockActual}</b> | Precio: <b>S/ ${encontrado.precioVenta.toFixed(2)}</b>`,
+          showConfirmButton: false,
+          timer: 2000
+        });
+      } else {
+        playScannerBeep(false);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'Código no encontrado en lista',
+          text: `Código: ${codigo}`,
+          showConfirmButton: false,
+          timer: 2000
+        });
+      }
+    }
+  }
+
+  actualizarBusqueda(event: any) {
+    this.terminoBusqueda.set(event.target.value);
+  }
+
   cargarCatalogos() {
     this.http.get<any>('/api/categorias').subscribe(res => this.categorias.set(res.data?.content || []));
     this.http.get<any>('/api/marcas').subscribe(res => this.marcas.set(res.data?.content || []));
@@ -60,9 +188,11 @@ export class InventarioAdmin implements OnInit {
 
   cargarProductos() {
     this.cargando.set(true);
-    this.productoService.obtenerProductos().subscribe({
+    // Cargar hasta 1000 productos para que el inventario completo esté disponible
+    this.productoService.obtenerProductos(0, 1000).subscribe({
       next: (res: any) => {
-        this.productos.set(res.data.content);
+        const list = res.data?.content || res.data || [];
+        this.productos.set(list);
         this.cargando.set(false);
       },
       error: (err) => {

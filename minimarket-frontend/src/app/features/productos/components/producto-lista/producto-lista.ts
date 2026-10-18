@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal, computed, HostListener } from '@angular/core'; 
+import { Component, inject, OnInit, signal, computed, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core'; 
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ProductoService } from '../../services/producto';
 import { Producto } from '../../models/producto.interface';
+import { playScannerBeep } from '../../../../core/utils/scanner-audio.util';
 import Swal from 'sweetalert2';
 
 export interface DetalleCarrito {
@@ -21,7 +22,9 @@ import { DatePipe } from '@angular/common';
   templateUrl: './producto-lista.html',
   styleUrl: './producto-lista.scss'
 })
-export class ProductoLista implements OnInit {
+export class ProductoLista implements OnInit, AfterViewInit {
+  @ViewChild('posSearchInput') posSearchInput?: ElementRef<HTMLInputElement>;
+
   private productoService = inject(ProductoService);
   private http = inject(HttpClient);
   
@@ -66,67 +69,171 @@ export class ProductoLista implements OnInit {
     this.cargarProductos();
   }
 
+  ngAfterViewInit(): void {
+    // Enfocar automáticamente el buscador para que el cajero pueda escanear de inmediato
+    setTimeout(() => {
+      this.posSearchInput?.nativeElement?.focus();
+    }, 300);
+  }
+
   // Escuchar eventos globales del teclado (Escáner de Barras)
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    // Si el usuario está escribiendo en un input, no interferimos
-    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+    const target = event.target as HTMLElement;
+    const isSearchInput = target?.id === 'pos-search-input';
+
+    // Si el foco está en el input de búsqueda, dejamos que el usuario/escáner escriba allí
+    // y manejamos la adición al presionar Enter en buscarOAgregarPorEnter()
+    if (isSearchInput) {
+      if (event.key === 'Enter') {
+        this.buscarOAgregarPorEnter(event);
+      }
       return;
     }
 
+    // Si está escribiendo en otros inputs (ej. editando cantidad o precio del ticket manualmente),
+    // no interferimos a menos que sea una ráfaga de escaneo
+    const isOtherInput = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
     const currentTime = new Date().getTime();
-    
-    // Si pasó mucho tiempo (ej: más de 100ms), reiniciamos el buffer porque fue tecleo humano
-    if (currentTime - this.lastKeyTime > 100) {
+    const timeDiff = currentTime - this.lastKeyTime;
+
+    // Si pasó más de 120ms entre teclas, reiniciamos el buffer (es tecleo humano normal)
+    if (timeDiff > 120) {
       this.barcodeBuffer = '';
     }
-    
+
     if (event.key === 'Enter') {
-      if (this.barcodeBuffer.length > 0) {
-        event.preventDefault(); // Evitar que el Enter dispare clics accidentales en botones
+      if (this.barcodeBuffer.length >= 2) {
+        event.preventDefault();
         this.procesarCodigoEscaneado(this.barcodeBuffer);
         this.barcodeBuffer = '';
       }
-    } else if (event.key.length === 1) { // Evitar Shift, Ctrl, etc.
-      this.barcodeBuffer += event.key;
+    } else if (event.key.length === 1) {
+      if (!isOtherInput || timeDiff < 60) {
+        this.barcodeBuffer += event.key;
+      }
     }
 
     this.lastKeyTime = currentTime;
   }
 
   procesarCodigoEscaneado(codigo: string) {
-    const producto = this.productos().find(p => p.codigoBarras === codigo || p.codigoInterno === codigo);
-    
+    const cleanCode = (codigo || '').trim();
+    if (!cleanCode) return;
+
+    const targetCode = cleanCode.toLowerCase();
+    const producto = this.productos().find(p => 
+      (p.codigoBarras && p.codigoBarras.trim().toLowerCase() === targetCode) || 
+      (p.codigoInterno && p.codigoInterno.trim().toLowerCase() === targetCode)
+    );
+
     if (producto) {
       this.agregarAlCarrito(producto);
+      playScannerBeep(true);
+      this.terminoBusqueda.set('');
       Swal.fire({
         toast: true,
         position: 'top-end',
         icon: 'success',
-        title: `${producto.nombre} agregado`,
+        title: `+1 ${producto.nombre}`,
+        html: `<b style="color: #27ae60;">S/ ${producto.precioVenta.toFixed(2)}</b> (Stock: ${producto.stockActual})`,
         showConfirmButton: false,
-        timer: 1500
+        timer: 1300
       });
+      this.posSearchInput?.nativeElement?.focus();
     } else {
+      // Intentar consultar al servidor si es un código recién registrado
+      this.productoService.obtenerPorCodigoBarras(cleanCode).subscribe({
+        next: (res) => {
+          if (res.data) {
+            const nuevoProd = res.data;
+            this.productos.update(prods => [nuevoProd, ...prods]);
+            this.agregarAlCarrito(nuevoProd);
+            playScannerBeep(true);
+            this.terminoBusqueda.set('');
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: `+1 ${nuevoProd.nombre}`,
+              html: `<b style="color: #27ae60;">S/ ${nuevoProd.precioVenta.toFixed(2)}</b>`,
+              showConfirmButton: false,
+              timer: 1300
+            });
+            this.posSearchInput?.nativeElement?.focus();
+          } else {
+            this.notificarCodigoNoEncontrado(cleanCode);
+          }
+        },
+        error: () => {
+          this.notificarCodigoNoEncontrado(cleanCode);
+        }
+      });
+    }
+  }
+
+  notificarCodigoNoEncontrado(codigo: string) {
+    playScannerBeep(false);
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Producto no encontrado',
+      text: `Código: ${codigo}`,
+      showConfirmButton: false,
+      timer: 2500
+    });
+    this.posSearchInput?.nativeElement?.focus();
+  }
+
+  buscarOAgregarPorEnter(event?: Event) {
+    if (event) event.preventDefault();
+    const query = this.terminoBusqueda().trim();
+    if (!query) return;
+
+    // 1. Coincidencia exacta con código de barras o código interno
+    const exacto = this.productos().find(p => 
+      (p.codigoBarras && p.codigoBarras.trim().toLowerCase() === query.toLowerCase()) ||
+      (p.codigoInterno && p.codigoInterno.trim().toLowerCase() === query.toLowerCase())
+    );
+
+    if (exacto) {
+      this.procesarCodigoEscaneado(query);
+      return;
+    }
+
+    // 2. Si sólo hay un producto filtrado en la vista, registrarlo directamente al ticket
+    const filtrados = this.productosFiltrados();
+    if (filtrados.length === 1) {
+      this.agregarAlCarrito(filtrados[0]);
+      playScannerBeep(true);
+      this.terminoBusqueda.set('');
       Swal.fire({
         toast: true,
         position: 'top-end',
-        icon: 'error',
-        title: 'Producto no encontrado',
-        text: `Código: ${codigo}`,
+        icon: 'success',
+        title: `+1 ${filtrados[0].nombre}`,
+        html: `<b style="color: #27ae60;">S/ ${filtrados[0].precioVenta.toFixed(2)}</b>`,
         showConfirmButton: false,
-        timer: 2500
+        timer: 1300
       });
+      this.posSearchInput?.nativeElement?.focus();
+      return;
     }
+
+    // 3. Si no coincide localmente, buscar en backend por si es un código de barras
+    this.procesarCodigoEscaneado(query);
   }
 
   cargando = signal<boolean>(true);
 
   cargarProductos() {
     this.cargando.set(true);
-    this.productoService.obtenerProductos().subscribe({
+    // Cargar catálogo completo para escaneo instantáneo
+    this.productoService.obtenerProductos(0, 1000).subscribe({
       next: (response: any) => {
-        this.productos.set(response.data.content);
+        const list = response.data?.content || response.data || [];
+        this.productos.set(list);
         this.cargando.set(false);
       },
       error: (err) => {

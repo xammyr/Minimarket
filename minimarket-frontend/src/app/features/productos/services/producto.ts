@@ -25,4 +25,8 @@ export class ProductoService {
   generarCodigo(): Observable<ApiResponse<string>> {
     return this.http.get<ApiResponse<string>>(`${this.apiUrl}/generar-codigo`);
   }
+
+  obtenerPorCodigoBarras(codigoBarras: string): Observable<ApiResponse<Producto>> {
+    return this.http.get<ApiResponse<Producto>>(`${this.apiUrl}/barcode/${encodeURIComponent(codigoBarras.trim())}`);
+  }
 }

@@ -36,7 +36,7 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public Page<ProductoResponseDTO> listar(String busqueda, Pageable pageable) {
         Page<Producto> pagina = StringUtils.hasText(busqueda)
-                ? productoRepository.findByNombreContainingIgnoreCaseAndActivoTrueOrderByIdAsc(busqueda, pageable)
+                ? productoRepository.buscarPorTermino(busqueda.trim(), pageable)
                 : productoRepository.findByActivoTrueOrderByIdAsc(pageable);
         return pagina.map(this::toResponse);
     }
@@ -48,8 +48,10 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public ProductoResponseDTO obtenerPorCodigoBarras(String codigoBarras) {
-        return toResponse(productoRepository.findByCodigoBarrasAndActivoTrue(codigoBarras.trim())
-                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado para código de barras: " + codigoBarras)));
+        String code = codigoBarras.trim();
+        return toResponse(productoRepository.findByCodigoBarrasAndActivoTrue(code)
+                .or(() -> productoRepository.findByCodigoInterno(code).filter(p -> Boolean.TRUE.equals(p.getActivo())))
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado para código: " + codigoBarras)));
     }
 
     @Override

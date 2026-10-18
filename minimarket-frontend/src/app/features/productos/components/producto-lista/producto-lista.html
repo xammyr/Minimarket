@@ -3,11 +3,24 @@
   <!-- SECCIÓN IZQUIERDA: Catálogo en Cuadrícula -->
   <section class="catalog-section">
     <div class="catalog-header">
-      <h2><i class="fa-solid fa-box-open" style="color: #d2b48c;"></i> Catálogo de Productos</h2>
+      <div class="header-title-row">
+        <h2><i class="fa-solid fa-box-open" style="color: #d2b48c;"></i> Catálogo de Productos</h2>
+        <span class="scanner-indicator" title="El escáner está activo para registrar productos en el ticket">
+          <i class="fa-solid fa-barcode"></i> Lector Listo
+        </span>
+      </div>
       <div class="search-box">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" placeholder="Buscar por nombre o escanear código..." 
-               [value]="terminoBusqueda()" (input)="actualizarBusqueda($event)">
+        <input #posSearchInput id="pos-search-input" type="text" 
+               placeholder="Escanear código de barras o buscar por nombre..." 
+               [value]="terminoBusqueda()" 
+               (input)="actualizarBusqueda($event)"
+               (keydown.enter)="buscarOAgregarPorEnter($event)">
+        @if (terminoBusqueda()) {
+          <button type="button" class="btn-clear-search" (click)="terminoBusqueda.set('')" title="Borrar búsqueda">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        }
       </div>
     </div>
     
