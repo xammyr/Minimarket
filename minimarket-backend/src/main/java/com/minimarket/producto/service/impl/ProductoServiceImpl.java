@@ -78,6 +78,7 @@ public class ProductoServiceImpl implements ProductoService {
                         .orElseThrow(() -> ResourceNotFoundException.of("Proveedor", request.proveedorId()))
                 : null;
 
+        BigDecimal stockInicial = request.stockActual() != null ? request.stockActual() : BigDecimal.ZERO;
         Producto producto = Producto.builder()
                 .codigoInterno(request.codigoInterno())
                 .codigoBarras(request.codigoBarras())
@@ -92,6 +93,7 @@ public class ProductoServiceImpl implements ProductoService {
                 .afectoIgv(request.afectoIgv())
                 .stockMinimo(request.stockMinimo())
                 .controlaStock(request.controlaStock())
+                .stockActual(stockInicial)
                 .build();
 
         return toResponse(productoRepository.save(producto));
@@ -131,8 +133,9 @@ public class ProductoServiceImpl implements ProductoService {
         producto.setAfectoIgv(request.afectoIgv());
         producto.setStockMinimo(request.stockMinimo());
         producto.setControlaStock(request.controlaStock());
-        // Nota: stockActual NO se toca aqui a proposito - solo se modifica via
-        // movimientos de inventario (modulo inventario/, Fase 6), nunca por un PUT directo.
+        if (request.stockActual() != null) {
+            producto.setStockActual(request.stockActual());
+        }
 
         return toResponse(producto);
     }

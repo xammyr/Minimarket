@@ -66,6 +66,7 @@ export class InventarioAdmin implements OnInit {
     unidadMedidaId: null,
     precioCompra: 0,
     precioVenta: 0,
+    stockActual: 0,
     stockMinimo: 5,
     controlaStock: true,
     afectoIgv: true
@@ -270,7 +271,8 @@ export class InventarioAdmin implements OnInit {
       codigoInterno: 'Cargando...', 
       codigoBarras: '', nombre: '', descripcion: '',
       categoriaId: null, marcaId: null, unidadMedidaId: null,
-      precioCompra: 0, precioVenta: 0, stockMinimo: 5,
+      precioCompra: 0, precioVenta: 0, 
+      stockActual: 0, stockMinimo: 5,
       controlaStock: true, afectoIgv: true
     };
     this.mostrarModal.set(true);
@@ -302,7 +304,8 @@ export class InventarioAdmin implements OnInit {
       unidadMedidaId: p.unidadMedidaId,
       precioCompra: p.precioCompra,
       precioVenta: p.precioVenta,
-      stockMinimo: p.stockMinimo,
+      stockActual: p.stockActual ?? 0,
+      stockMinimo: p.stockMinimo ?? 5,
       controlaStock: p.controlaStock,
       afectoIgv: p.afectoIgv
     };

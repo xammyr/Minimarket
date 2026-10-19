@@ -150,8 +150,14 @@
               </select>
             </div>
             <div style="flex: 1;">
-              <label style="font-weight: bold; display: block; margin-bottom: 5px;">Stock Mínimo *</label>
+              <label style="font-weight: bold; display: block; margin-bottom: 3px;">Stock Actual (Existencias) *</label>
+              <input type="number" [(ngModel)]="formulario.stockActual" name="stockActual" required min="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+              <small style="color: #7f8c8d; font-size: 11px; display: block; margin-top: 2px;">Cantidad que tienes en la tienda</small>
+            </div>
+            <div style="flex: 1;">
+              <label style="font-weight: bold; display: block; margin-bottom: 3px;">Stock Mínimo (Alerta) *</label>
               <input type="number" [(ngModel)]="formulario.stockMinimo" name="stockMinimo" required min="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+              <small style="color: #7f8c8d; font-size: 11px; display: block; margin-top: 2px;">Alerta ⚠️ si baja de este límite</small>
             </div>
           </div>
 

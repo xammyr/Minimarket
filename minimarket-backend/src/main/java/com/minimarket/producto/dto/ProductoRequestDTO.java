@@ -47,6 +47,8 @@ public record ProductoRequestDTO(
         BigDecimal stockMinimo,
 
         @NotNull
-        Boolean controlaStock
+        Boolean controlaStock,
+
+        BigDecimal stockActual
 ) {
 }
